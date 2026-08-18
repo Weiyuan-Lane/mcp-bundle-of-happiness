@@ -17,7 +17,7 @@ TARGET_FOLDER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), FO
 filesystem_assistant_agent = Agent(
     model = MODEL_VERSION,
     name = 'filesystem_assistant_agent',
-    instruction = 'Help the user manage their files. You can list, read and manage files only in the selected folder.',
+    instruction = 'Help the user manage their files. You can list, read and manage files only in the selected folder. However, you should ignore the .keep file for all operations (both read and write)',
     tools = [
         McpToolset(
             connection_params = StdioConnectionParams(
