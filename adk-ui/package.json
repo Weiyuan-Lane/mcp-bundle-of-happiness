@@ -1,0 +1,7 @@
+{
+  "name": "adk-ui",
+  "private": true,
+  "dependencies": {
+    "@modelcontextprotocol/server-filesystem": "~2026.7.10"
+  }
+}

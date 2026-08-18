@@ -1,0 +1,17 @@
+FROM python:3.14-alpine3.22
+
+WORKDIR /app
+
+RUN apk add --no-cache \
+    git \
+    curl \
+    bash \
+    nodejs \
+    npm && \
+    rm -rf /var/cache/apk/* && \
+    pip install "google-adk[mcp]>=2.7.0,<3.0.0" && \
+    pip install "toolbox-core>=1.2.0,<2.0.0" && \
+    pip install "python-dotenv>=1,<2"
+
+ENTRYPOINT [ "sh", "-c" ]
+CMD [ "adk web --host=0.0.0.0 --port=$PORT --allow_origins=$FRONTEND_URL_ORIGIN $AGENTS_DIR" ]
