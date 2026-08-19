@@ -6,5 +6,5 @@ adk-ui/node_modules/*
 scenarios/0. Simple MCP client and server setup/mcp-directory/*
 !scenarios/0. Simple MCP client and server setup/mcp-directory/.keep
 
-scenarios/*/__pycache__/
-scenarios/*/.adk/
+scenarios/**/__pycache__/
+scenarios/**/.adk/
