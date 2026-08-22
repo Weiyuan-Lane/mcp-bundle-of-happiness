@@ -23,6 +23,8 @@ docker-compose-logs:
 chrome-debug:
 	open -na "Google Chrome" --args \
 		--remote-debugging-port=$(SCENARIO_X_CHROME_DEBUGGING_PORT) \
+		--enable-features=WebMCP,DevToolsWebMCPSupport \
+		--enable-experimental-web-platform-features \
 		--user-data-dir=/tmp/chrome-mcp-debug-profile \
 		--no-first-run \
 		--no-default-browser-check

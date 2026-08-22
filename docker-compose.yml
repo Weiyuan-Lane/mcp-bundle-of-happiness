@@ -18,7 +18,7 @@ services:
     ports:
       - "127.0.0.1:${ADK_UI_PORT}:${ADK_UI_PORT}"
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "chrome.localhost:host-gateway" # Note - chrome.localhost is needed for reachability as any other hostname is considered as untrusted. Only "*.localhost" will work - https://chromium.googlesource.com/chromium/src/+/HEAD/net/base/url_util.cc#47
 
   # MCP Servers
 
