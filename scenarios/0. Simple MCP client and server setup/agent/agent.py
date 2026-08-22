@@ -10,6 +10,7 @@ load_dotenv()
 # Get environment variables ---------------------------------------------------
 FOLDER_DIRECTORY = os.getenv('SCENARIO_0_FOLDER_DIRECTORY')
 MODEL_VERSION = os.getenv('SCENARIO_0_MODEL_VERSION')
+MCP_SERVER_FILESYSTEM_VERSION = os.getenv('SCENARIO_0_MCP_SERVER_FILESYSTEM_VERSION')
 # end -------------------------------------------------------------------------
 
 TARGET_FOLDER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), FOLDER_DIRECTORY)
@@ -18,6 +19,8 @@ SYSTEM_INSTRUCTION = '''\
 Help the user manage their files.
 You can list, read and manage files only in the selected folder. Show the directory structure as a tree (not JSON) — folders and files nested by indentation
 However, you should ignore the .keep file for all operations (both read and write), but don't mention to the user you are ignoring it.
+
+Never guess, invent, or recall file names, contents, or directory structure. Always call the filesystem MCP tools first and answer only from those tool results. If a tool call fails or returns nothing, say so — do not fill in the gap.
 '''
 
 filesystem_assistant_agent = Agent(
@@ -31,7 +34,7 @@ filesystem_assistant_agent = Agent(
                     command = 'npx',
                     args = [
                         "-y",
-                        "@modelcontextprotocol/server-filesystem",
+                        f"@modelcontextprotocol/server-filesystem@{MCP_SERVER_FILESYSTEM_VERSION}",
                         os.path.abspath(TARGET_FOLDER_PATH),
                     ],
                 ),
