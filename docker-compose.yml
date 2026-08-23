@@ -7,11 +7,32 @@ services:
     env_file:
       - .env
     environment:
-      PORT: 8080
+      PORT: ${ADK_UI_PORT}
       AGENTS_DIR: /app/agents
     working_dir: /app
     volumes:
       - ./adk-ui/node_modules:/app/node_modules
+      # Agents
       - ./scenarios/0. Simple MCP client and server setup:/app/agents/scenario_0__simple_mcp_setup
+      - ./scenarios/X. MCP Sandwich - WebMCP and ChromeDevTools MCP:/app/agents/scenario_x__mcp_sandwich
     ports:
-      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:${ADK_UI_PORT}:${ADK_UI_PORT}"
+    extra_hosts:
+      - "chrome.localhost:host-gateway" # Note - chrome.localhost is needed for reachability as any other hostname is considered as untrusted. Only "*.localhost" will work - https://chromium.googlesource.com/chromium/src/+/HEAD/net/base/url_util.cc#47
+
+  # MCP Servers
+
+  # Other demo servers
+  demo-webmcp-server:
+    container_name: demo-webmcp-server
+    build:
+      context: scenarios/X. MCP Sandwich - WebMCP and ChromeDevTools MCP/google-web-26-demos
+      dockerfile: ops/Dockerfile.dev
+    environment:
+      PORT: ${SCENARIO_X_WEB_SERVER_PORT}
+    working_dir: /app
+    volumes:
+      - "./scenarios/X. MCP Sandwich - WebMCP and ChromeDevTools MCP/google-web-26-demos:/app"
+    ports:
+      - "127.0.0.1:${SCENARIO_X_WEB_SERVER_PORT}:${SCENARIO_X_WEB_SERVER_PORT}"
+
