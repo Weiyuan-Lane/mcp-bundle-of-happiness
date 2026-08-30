@@ -12,7 +12,9 @@ git clone --recurse-submodules git@github.com:Weiyuan-Lane/mcp-bundle-of-happine
 ChromeDevTools MCP is used for one of the scenarios, so make sure you use Chrome too
 Install Chrome [here](https://www.google.com/chrome/)
 
-Start and stop the all scenarios with make commands (this also opens Chrome with remote debugging for ChromeDevTools MCP):
+Duplicate `.env.sample` to `.env`, and fill in the missing values
+
+Finally, start and stop the all scenarios with make commands (this also opens Chrome with remote debugging for ChromeDevTools MCP):
 ```
 make docker-compose-up          # Start
 make docker-compose-down        # Stop
