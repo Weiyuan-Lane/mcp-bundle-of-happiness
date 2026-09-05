@@ -23,3 +23,7 @@ When you start this scenario with `make docker-compose-up`, the following servic
 | **Client** | Google ADK `McpToolset` | Exchanges 2-legged OAuth at Keycloak, then connects over Streamable HTTP with a JWT (`aud` + `exchange-rate:read` / `quickchart:write`) |
 | **Server** | Exchange-rate MCP (self-managed) | Current rates (`get_currency_data`), pairwise conversion (`convert_from_one_currency_to_another_currency`), and historical series (`exchange_rate_time_series_data`) via [Frankfurter](https://www.frankfurter.app/) |
 | **Server** | QuickChart MCP (self-managed) | Builds a chart image URL (`make_chart`) from a [QuickChart](https://quickchart.io/)/Chart.js-compatible dict |
+
+## Unauthorised agent MCP configuration
+
+Nothing much to add here where it is the same as the agent above, but without OAuth2 configured, so it fails at pretty much any tool call it does :(
