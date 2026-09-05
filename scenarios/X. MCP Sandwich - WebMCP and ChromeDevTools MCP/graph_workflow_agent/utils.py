@@ -1,25 +1,20 @@
 import json
 import os
 import re
+from typing import Any
+from google.adk import Context
 from google.adk.tools.mcp_tool import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StdioConnectionParams
 from mcp import StdioServerParameters
 from dotenv import load_dotenv
-from .constants import (
-    RESTART_ANOTHER_PAGE,
-    RESTART_CHOSE_WRONG,
-    RESTART_PAGE_INVALID,
-    RESTART_UNKNOWN,
-    STATE_PAGES,
-    STATE_WEBMCP_TOOLS,
-)
+from .constants import RestartReason, STATE_PAGES, STATE_WEBMCP_TOOLS
 load_dotenv()
 
-MCP_SERVER_CHROMEDEVTOOLS_VERSION = os.getenv('SCENARIO_X_MCP_SERVER_CHROMEDEVTOOLS_VERSION')
-CHROME_DEBUGGING_PORT = os.getenv('SCENARIO_X_CHROME_DEBUGGING_PORT')
-CHROME_DEBUGGING_ADDR = os.getenv('SCENARIO_X_CHROME_DEBUGGING_ADDR')
+MCP_SERVER_CHROMEDEVTOOLS_VERSION: str | None = os.getenv('SCENARIO_X_MCP_SERVER_CHROMEDEVTOOLS_VERSION')
+CHROME_DEBUGGING_PORT: str | None = os.getenv('SCENARIO_X_CHROME_DEBUGGING_PORT')
+CHROME_DEBUGGING_ADDR: str | None = os.getenv('SCENARIO_X_CHROME_DEBUGGING_ADDR')
 
-chrome_devtools_mcp_client = McpToolset(
+chrome_devtools_mcp_client: McpToolset = McpToolset(
     connection_params = StdioConnectionParams(
         server_params = StdioServerParameters(
             command = 'npx',
@@ -34,7 +29,7 @@ chrome_devtools_mcp_client = McpToolset(
     ),
 )
 
-def as_text(value):
+def as_text(value: object) -> str:
     if value is None:
         return ''
     if isinstance(value, str):
@@ -72,11 +67,11 @@ def as_text(value):
     except TypeError:
         return str(value)
 
-def pages_as_markdown(value):
+def pages_as_markdown(value: object) -> str:
     text = _inner_tool_text(value)
     if text.startswith('Failed to'):
         return text
-    lines = []
+    lines: list[str] = []
     for line in text.splitlines():
         match = re.match(r'^(\d+):\s+(\S+)', line.strip())
         if match:
@@ -85,11 +80,11 @@ def pages_as_markdown(value):
         return '\n'.join(lines)
     return _fields_as_markdown(_json_records(text, 'pages'), 'id', 'url')
 
-def webmcp_tools_as_markdown(value):
+def webmcp_tools_as_markdown(value: object) -> str:
     text = _inner_tool_text(value)
     if text.startswith('Failed to'):
         return text
-    lines = []
+    lines: list[str] = []
     for line in text.splitlines():
         name = re.search(r'\bname="([^"]*)"', line)
         if not name:
@@ -107,7 +102,7 @@ def webmcp_tools_as_markdown(value):
         'description',
     )
 
-def _inner_tool_text(value):
+def _inner_tool_text(value: object) -> str:
     text = as_text(value)
     stripped = text.strip()
     if stripped[:1] not in '{[':
@@ -119,7 +114,7 @@ def _inner_tool_text(value):
     inner = as_text(parsed)
     return inner or text
 
-def _json_records(text, *keys):
+def _json_records(text: str, *keys: str) -> list[dict[str, Any]]:
     try:
         data = json.loads(text)
     except json.JSONDecodeError:
@@ -137,8 +132,8 @@ def _json_records(text, *keys):
             return [item for item in items if isinstance(item, dict)]
     return []
 
-def _fields_as_markdown(records, left_key, right_key):
-    lines = []
+def _fields_as_markdown(records: list[dict[str, Any]], left_key: str, right_key: str) -> str:
+    lines: list[str] = []
     for item in records:
         left = item.get(left_key, item.get('pageId') if left_key == 'id' else None)
         right = item.get(right_key)
@@ -150,7 +145,7 @@ def _fields_as_markdown(records, left_key, right_key):
             lines.append(f'- **{left}**' + (f': {right}' if right else ''))
     return '\n'.join(lines) or '(none)'
 
-def user_text(value):
+def user_text(value: object) -> str:
     if value is None:
         return ''
     if isinstance(value, str):
@@ -162,12 +157,12 @@ def user_text(value):
         return json.dumps(value)
     return as_text(value)
 
-def resume_user_text(ctx):
+def resume_user_text(ctx: Context) -> str:
     replies = list(ctx.resume_inputs.values())
     first_reply = replies[0]
     return user_text(first_reply)
 
-def as_dict(value):
+def as_dict(value: object) -> dict[str, Any]:
     if isinstance(value, dict):
         return value
     text = user_text(value)
@@ -179,7 +174,7 @@ def as_dict(value):
         return {}
     return parsed if isinstance(parsed, dict) else {}
 
-def tool_input_json(value):
+def tool_input_json(value: object) -> str:
     if value is None or value == '':
         return '{}'
     if isinstance(value, dict):
@@ -192,17 +187,17 @@ def tool_input_json(value):
         return json.dumps(parsed) if isinstance(parsed, dict) else '{}'
     return '{}'
 
-async def run_chrome_devtools_mcp_client_tool(ctx, tool_name, args=None):
-    tools = await chrome_devtools_mcp_client.get_tools()
-    tool = next((item for item in tools if item.name == tool_name), None)
+async def run_chrome_devtools_mcp_client_tool(ctx: Context, tool_name: str, args: dict[str, Any] | None = None) -> Any:
+    tools: list[Any] = await chrome_devtools_mcp_client.get_tools()
+    tool: Any = next((item for item in tools if item.name == tool_name), None)
     if tool is None:
-        available = [item.name for item in tools]
+        available: list[str] = [item.name for item in tools]
         raise ValueError(
             f'Chrome DevTools tool "{tool_name}" not found. Available: {available}'
         )
     return await tool.run_async(args=args or {}, tool_context=ctx)
 
-async def refresh_pages(ctx):
+async def refresh_pages(ctx: Context) -> str:
     try:
         pages = await run_chrome_devtools_mcp_client_tool(ctx, 'list_pages')
         ctx.state[STATE_PAGES] = as_text(pages)
@@ -210,7 +205,7 @@ async def refresh_pages(ctx):
         ctx.state[STATE_PAGES] = f'Failed to list pages: {error}'
     return ctx.state[STATE_PAGES]
 
-async def refresh_webmcp_tools(ctx):
+async def refresh_webmcp_tools(ctx: Context) -> str:
     try:
         tools = await run_chrome_devtools_mcp_client_tool(ctx, 'list_webmcp_tools')
         ctx.state[STATE_WEBMCP_TOOLS] = as_text(tools)
@@ -220,14 +215,17 @@ async def refresh_webmcp_tools(ctx):
         )
     return ctx.state[STATE_WEBMCP_TOOLS]
 
-def create_restart_text(reason):
-    prompts = {
-        RESTART_CHOSE_WRONG: (
+def create_restart_text(reason: object) -> str | None:
+    prompts: dict[RestartReason, str] = {
+        RestartReason.CHOSE_WRONG: (
             'That input did not match an open-page URL, an existing page, '
             'or a known WebMCP tool. Try again.'
         ),
-        RESTART_PAGE_INVALID: 'The previous page is no longer valid. Open or select a page.',
-        RESTART_ANOTHER_PAGE: 'Switching pages. Open a URL or select an existing page.',
-        RESTART_UNKNOWN: 'Something went wrong. Start over by opening or selecting a page.',
+        RestartReason.PAGE_INVALID: 'The previous page is no longer valid. Open or select a page.',
+        RestartReason.ANOTHER_PAGE: 'Switching pages. Open a URL or select an existing page.',
+        RestartReason.UNKNOWN: 'Something went wrong. Start over by opening or selecting a page.',
     }
-    return prompts.get(reason)
+    try:
+        return prompts[RestartReason(reason)]
+    except ValueError:
+        return None

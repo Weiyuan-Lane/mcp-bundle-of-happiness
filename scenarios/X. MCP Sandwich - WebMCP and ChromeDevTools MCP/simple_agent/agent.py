@@ -12,13 +12,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get environment variables ---------------------------------------------------
-MODEL_VERSION = os.getenv('SCENARIO_X_MODEL_VERSION')
-MCP_SERVER_CHROMEDEVTOOLS_VERSION = os.getenv('SCENARIO_X_MCP_SERVER_CHROMEDEVTOOLS_VERSION')
-CHROME_DEBUGGING_PORT = os.getenv('SCENARIO_X_CHROME_DEBUGGING_PORT')
-CHROME_DEBUGGING_ADDR = os.getenv('SCENARIO_X_CHROME_DEBUGGING_ADDR')
+MODEL_VERSION: str | None = os.getenv('SCENARIO_X_MODEL_VERSION')
+MCP_SERVER_CHROMEDEVTOOLS_VERSION: str | None = os.getenv('SCENARIO_X_MCP_SERVER_CHROMEDEVTOOLS_VERSION')
+CHROME_DEBUGGING_PORT: str | None = os.getenv('SCENARIO_X_CHROME_DEBUGGING_PORT')
+CHROME_DEBUGGING_ADDR: str | None = os.getenv('SCENARIO_X_CHROME_DEBUGGING_ADDR')
 # end -------------------------------------------------------------------------
 
-SYSTEM_INSTRUCTION = '''\
+SYSTEM_INSTRUCTION: str = '''\
 Only call tools that appear in your tool list. Never invent names.
 
 Page WebMCP tools are not callable directly. After navigating:
@@ -27,7 +27,7 @@ Page WebMCP tools are not callable directly. After navigating:
 If a tool call fails or no tools are listed, say so. Do not pretend you used a tool.
 '''
 
-chrome_devtools_mcp_client = McpToolset(
+chrome_devtools_mcp_client: McpToolset = McpToolset(
     connection_params = StdioConnectionParams(
         server_params = StdioServerParameters(
             command = 'npx',
@@ -42,7 +42,7 @@ chrome_devtools_mcp_client = McpToolset(
     ),
 )
 
-root_agent = Agent(
+root_agent: Agent = Agent(
     model = MODEL_VERSION,
     name = 'browser_interaction_agent',
     instruction = SYSTEM_INSTRUCTION,
