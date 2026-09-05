@@ -372,7 +372,7 @@ browser_interaction_edges = [
 ]
 
 root_agent = Workflow(
-    name = 'root_agent',
+    name = 'browser_interaction_workflow',
     edges = browser_interaction_edges,
 )
 # end -------------------------------------------------------------------------
