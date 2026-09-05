@@ -11,6 +11,9 @@ scenarios/**/local-env/
 scenarios/**/.adk/
 scenarios/**/node_modules/
 
+keycloak/.data/*
+!keycloak/.data/.keep
+
 **/.DS_Store
 
 

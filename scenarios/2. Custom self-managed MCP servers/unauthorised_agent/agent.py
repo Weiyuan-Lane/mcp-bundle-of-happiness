@@ -1,7 +1,5 @@
 import os
-from fastapi.openapi.models import OAuth2, OAuthFlowClientCredentials, OAuthFlows
 from google.adk import Agent
-from google.adk.auth.auth_credential import AuthCredential, AuthCredentialTypes, OAuth2Auth
 from google.adk.tools.mcp_tool import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
 from dotenv import load_dotenv
@@ -11,32 +9,7 @@ load_dotenv()
 MODEL_VERSION: str | None = os.getenv('SCENARIO_2_MODEL_VERSION')
 EXCHANGE_RATE_MCP_URL: str | None = os.getenv('SCENARIO_2_MCP_SERVER_EXCHANGE_RATE_URL')
 QUICKCHART_MCP_URL: str | None = os.getenv('SCENARIO_2_MCP_SERVER_QUICKCHART_URL')
-KEYCLOAK_ISSUER: str | None = os.getenv('KEYCLOAK_ISSUER')
-KEYCLOAK_CLIENT_ADK_ID: str | None = os.getenv('KEYCLOAK_CLIENT_ADK_ID')
-KEYCLOAK_CLIENT_ADK_SECRET: str | None = os.getenv('KEYCLOAK_CLIENT_ADK_SECRET')
-EXCHANGE_RATE_SCOPE: str = os.environ['SCENARIO_2_KEYCLOAK_SCOPE_EXCHANGE_RATE']
-QUICKCHART_SCOPE: str = os.environ['SCENARIO_2_KEYCLOAK_SCOPE_QUICKCHART']
 # end -------------------------------------------------------------------------
-
-KEYCLOAK_TOKEN_URL: str = f'{KEYCLOAK_ISSUER}/protocol/openid-connect/token'
-oauth2_scheme: OAuth2 = OAuth2(
-    flows = OAuthFlows(
-        clientCredentials = OAuthFlowClientCredentials(
-            tokenUrl = KEYCLOAK_TOKEN_URL,
-            scopes = {
-                EXCHANGE_RATE_SCOPE: 'Read rates and convert currencies',
-                QUICKCHART_SCOPE: 'Generate chart images',
-            },
-        ),
-    ),
-)
-oauth2_credential: AuthCredential = AuthCredential(
-    auth_type = AuthCredentialTypes.OAUTH2,
-    oauth2 = OAuth2Auth(
-        client_id = KEYCLOAK_CLIENT_ADK_ID,
-        client_secret = KEYCLOAK_CLIENT_ADK_SECRET,
-    ),
-)
 
 SYSTEM_INSTRUCTION: str = '''\
 You are a financial advisor.
@@ -52,8 +25,6 @@ exchange_rate_mcp_toolset: McpToolset = McpToolset(
     connection_params = StreamableHTTPConnectionParams(
         url = EXCHANGE_RATE_MCP_URL,
     ),
-    auth_scheme = oauth2_scheme,
-    auth_credential = oauth2_credential,
 )
 
 # QuickChart MCP - render a chart image URL from Chart.js-compatible input
@@ -61,8 +32,6 @@ quickchart_mcp_toolset: McpToolset = McpToolset(
     connection_params = StreamableHTTPConnectionParams(
         url = QUICKCHART_MCP_URL,
     ),
-    auth_scheme = oauth2_scheme,
-    auth_credential = oauth2_credential,
 )
 
 tools: list[McpToolset] = [

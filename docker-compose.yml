@@ -21,6 +21,8 @@ services:
       - "127.0.0.1:${ADK_UI_PORT}:${ADK_UI_PORT}"
     extra_hosts:
       - "chrome.localhost:host-gateway" # Note - chrome.localhost is needed for reachability as any other hostname is considered as untrusted. Only "*.localhost" will work - https://chromium.googlesource.com/chromium/src/+/HEAD/net/base/url_util.cc#47
+    depends_on:
+      - demo-keycloak
 
   # Custom MCP Servers
   mcp-server-exchange-rate:
@@ -30,14 +32,13 @@ services:
       dockerfile: ops/Dockerfile.dev
     env_file:
       - .env
-    environment:
-      HOST: 0.0.0.0
-      PORT: ${SCENARIO_2_MCP_SERVER_EXCHANGE_RATE_PORT}
     working_dir: /app
     volumes:
       - ./scenarios/2. Custom self-managed MCP servers/mcp-servers/exchange-rate:/app
     ports:
       - "127.0.0.1:${SCENARIO_2_MCP_SERVER_EXCHANGE_RATE_PORT}:${SCENARIO_2_MCP_SERVER_EXCHANGE_RATE_PORT}"
+    depends_on:
+      - demo-keycloak
 
   mcp-server-quickchart:
     container_name: mcp-server-quickchart
@@ -46,14 +47,13 @@ services:
       dockerfile: ops/Dockerfile.dev
     env_file:
       - .env
-    environment:
-      HOST: 0.0.0.0
-      PORT: ${SCENARIO_2_MCP_SERVER_QUICKCHART_PORT}
     working_dir: /app
     volumes:
       - ./scenarios/2. Custom self-managed MCP servers/mcp-servers/quickchart:/app
     ports:
       - "127.0.0.1:${SCENARIO_2_MCP_SERVER_QUICKCHART_PORT}:${SCENARIO_2_MCP_SERVER_QUICKCHART_PORT}"
+    depends_on:
+      - demo-keycloak
 
   # Other demo servers
   demo-webmcp-server:
@@ -69,3 +69,21 @@ services:
     ports:
       - "127.0.0.1:${SCENARIO_X_WEB_SERVER_PORT}:${SCENARIO_X_WEB_SERVER_PORT}"
 
+  # Identity / OAuth
+  demo-keycloak:
+    container_name: demo-keycloak
+    build:
+      context: keycloak
+      dockerfile: Dockerfile.dev
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HTTP_PORT: ${KEYCLOAK_PORT}
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HEALTH_ENABLED: "true"
+    volumes:
+      - ./keycloak/.data:/opt/keycloak/data
+      - ./keycloak/import:/opt/keycloak/data/import:ro
+    ports:
+      - "127.0.0.1:${KEYCLOAK_PORT}:${KEYCLOAK_PORT}"

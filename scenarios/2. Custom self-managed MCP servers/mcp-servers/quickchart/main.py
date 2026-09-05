@@ -5,16 +5,32 @@ from typing import Any, TypedDict
 import httpx
 from dotenv import load_dotenv
 from fastmcp import FastMCP
+from fastmcp.server.auth.providers.jwt import JWTVerifier
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 load_dotenv()
 
-HOST: str = os.getenv("HOST", "localhost")
-PORT: int = int(os.getenv("PORT", "8000"))
+# Get environment variables ---------------------------------------------------
+HOST: str = os.getenv("SCENARIO_2_MCP_SERVER_QUICKCHART_HOST", "localhost")
+PORT: int = int(os.getenv("SCENARIO_2_MCP_SERVER_QUICKCHART_PORT", "8000"))
+KEYCLOAK_JWKS_URI: str = os.environ["KEYCLOAK_JWKS_URI"]
+KEYCLOAK_ISSUER: str = os.environ["KEYCLOAK_ISSUER"]
+KEYCLOAK_CLIENT_CUSTOM_MCP_QUICKCHART_ID: str = os.environ["SCENARIO_2_KEYCLOAK_CLIENT_CUSTOM_MCP_QUICKCHART_ID"]
+QUICKCHART_SCOPE: str = os.environ["SCENARIO_2_KEYCLOAK_SCOPE_QUICKCHART"]
+# end -------------------------------------------------------------------------
 
-mcp = FastMCP("Charting MCP Server")
 QUICKCHART_HOST = "https://quickchart.io/chart"
+
+mcp = FastMCP(
+    "Charting MCP Server",
+    auth = JWTVerifier(
+        jwks_uri = KEYCLOAK_JWKS_URI,
+        issuer = KEYCLOAK_ISSUER,
+        audience = KEYCLOAK_CLIENT_CUSTOM_MCP_QUICKCHART_ID,
+        required_scopes = [QUICKCHART_SCOPE],
+    ),
+)
 
 class ErrorResult(TypedDict):
     error: str
