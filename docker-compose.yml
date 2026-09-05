@@ -16,6 +16,7 @@ services:
       - ./scenarios/0. Simple MCP client and server setup:/app/agents/scenario_0__simple_mcp_setup
       - ./scenarios/1. Managed MCP client setup and server connections:/app/agents/scenario_1__managed_mcp_setup
       - ./scenarios/2. Custom self-managed MCP servers:/app/agents/scenario_2__custom_self_managed_mcp_servers
+      - ./scenarios/3. MCP Toolbox for databases - custom MCP server:/app/agents/scenario_3__mcp_toolbox_for_databases
       - ./scenarios/X. MCP Sandwich - WebMCP and ChromeDevTools MCP:/app/agents/scenario_x__mcp_sandwich
     ports:
       - "127.0.0.1:${ADK_UI_PORT}:${ADK_UI_PORT}"
@@ -24,7 +25,9 @@ services:
     depends_on:
       - demo-keycloak
 
-  # Custom MCP Servers
+  #############################################################################
+  # Custom MCP Servers                                                        #
+  #############################################################################
   mcp-server-exchange-rate:
     container_name: mcp-server-exchange-rate
     build:
@@ -55,7 +58,9 @@ services:
     depends_on:
       - demo-keycloak
 
-  # Other demo servers
+  #############################################################################
+  # Other demo servers                                                        #
+  #############################################################################
   demo-webmcp-server:
     container_name: demo-webmcp-server
     build:
@@ -87,3 +92,5 @@ services:
       - ./keycloak/import:/opt/keycloak/data/import:ro
     ports:
       - "127.0.0.1:${KEYCLOAK_PORT}:${KEYCLOAK_PORT}"
+
+  # Database for MCP Toolbox
