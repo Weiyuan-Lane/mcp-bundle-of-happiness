@@ -2,7 +2,7 @@
 
 ← [Back to MCP Bundle of Happiness](../../README.md)
 
-This scenario runs **your own MCP servers** next to the ADK client. The exchange-rate and QuickChart servers are FastMCP apps in Docker. The **financial advisor agent** is the **client**: it connects over Streamable HTTP and calls those tools.
+This scenario runs **your own MCP servers** next to the ADK client. The Exchange-rate and QuickChart servers are FastMCP servers, used by our ADK agent.
 
 The agent converts any two currencies, looks up current and historical rates, and can chart a series with QuickChart when that helps.
 

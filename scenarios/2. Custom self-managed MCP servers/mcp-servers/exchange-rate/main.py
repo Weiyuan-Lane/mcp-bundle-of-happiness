@@ -1,5 +1,5 @@
 import os
-from typing import Any, TypeIs, TypedDict, cast
+from typing import Any, TypeIs, TypedDict
 
 import httpx
 from dotenv import load_dotenv
@@ -13,15 +13,13 @@ HOST: str = os.getenv("HOST", "localhost")
 PORT: int = int(os.getenv("PORT", "8000"))
 
 mcp = FastMCP("Currency MCP Server")
-CURRENCY_API_HOST = "https://api.frankfurter.app"  # IF this doesn't work, try https://api.frankfurter.dev/v1
+CURRENCY_API_HOST = "https://api.frankfurter.dev"
 
 class ErrorResult(TypedDict):
     error: str
 
 class CurrencyRates(TypedDict):
-    amount: float
     base: str
-    date: str
     rates: dict[str, float]
 
 class ConversionResult(TypedDict):
@@ -36,8 +34,9 @@ class TimeSeriesResult(TypedDict):
     exchange_rates: dict[str, float]
 
 type JsonObject = dict[str, Any]
+type JsonValue = JsonObject | list[Any]
 
-async def _frankfurter_get(path: str, params: dict[str, str]) -> JsonObject | ErrorResult:
+async def _frankfurter_get(path: str, params: dict[str, str] | None = None) -> JsonValue | ErrorResult:
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(f"{CURRENCY_API_HOST}/{path}", params=params)
@@ -49,14 +48,24 @@ async def _frankfurter_get(path: str, params: dict[str, str]) -> JsonObject | Er
     except Exception as exc:
         return {"error": f"API request failed with error: {exc}"}
 
-    if not isinstance(data, dict):
-        return {"error": f"API request failed with invalid response body as: {data}"}
-    if "message" in data:
+    if isinstance(data, dict) and "message" in data:
         return {"error": f"API request failed with error: {data['message']}"}
+    if not response.is_success:
+        return {"error": f"API request failed with status {response.status_code}"}
+    if not isinstance(data, (dict, list)):
+        return {"error": f"API request failed with invalid response body as: {data}"}
     return data
 
-def _is_error(data: JsonObject | ErrorResult) -> TypeIs[ErrorResult]:
-    return "error" in data and "rates" not in data
+def _is_error(data: JsonValue | ErrorResult) -> TypeIs[ErrorResult]:
+    return isinstance(data, dict) and "error" in data
+
+def _rates_lookup(rows: list[Any]) -> dict[str, float] | ErrorResult:
+    rates: dict[str, float] = {}
+    for row in rows:
+        if not isinstance(row, dict) or "quote" not in row or "rate" not in row:
+            return {"error": "API request failed with invalid rate row"}
+        rates[str(row["quote"])] = float(row["rate"])
+    return rates
 
 @mcp.custom_route("/health", methods=["GET"])
 async def liveness_check(request: Request) -> JSONResponse:
@@ -73,10 +82,17 @@ async def get_currency_data(currency: str) -> CurrencyRates | ErrorResult:
     Returns:
         A dict for the currency data
     """
-    data = await _frankfurter_get("latest", {"base": currency.upper()})
+    currency_upper = currency.upper()
+    data = await _frankfurter_get("v2/rates", {"base": currency_upper})
     if _is_error(data):
         return data
-    return cast(CurrencyRates, data)
+    if not isinstance(data, list):
+        return {"error": "API request failed with invalid rates response"}
+
+    rates = _rates_lookup(data)
+    if _is_error(rates):
+        return rates
+    return {"base": currency_upper, "rates": rates}
 
 @mcp.tool
 async def convert_from_one_currency_to_another_currency(
@@ -97,15 +113,10 @@ async def convert_from_one_currency_to_another_currency(
     from_currency_upper = from_currency.upper()
     to_currency_upper = to_currency.upper()
 
-    data = await _frankfurter_get(
-        "latest",
-        {"from": from_currency_upper, "to": to_currency_upper},
-    )
+    data = await _frankfurter_get(f"v2/rate/{from_currency_upper}/{to_currency_upper}")
     if _is_error(data):
         return data
-
-    rates = data.get("rates")
-    if not isinstance(rates, dict) or to_currency_upper not in rates:
+    if not isinstance(data, dict) or "rate" not in data:
         return {
             "error": (
                 "API request failed with missing exchange rate data for: "
@@ -113,10 +124,10 @@ async def convert_from_one_currency_to_another_currency(
             )
         }
 
-    exchange_rate = float(rates[to_currency_upper])
+    exchange_rate = float(data["rate"])
     return {
-        "from_currency": from_currency,
-        "to_currency": to_currency,
+        "from_currency": from_currency_upper,
+        "to_currency": to_currency_upper,
         "exchange_rate": exchange_rate,
         "converted_amount": exchange_rate * amount,
     }
@@ -143,21 +154,24 @@ async def exchange_rate_time_series_data(
     to_currency_upper = to_currency.upper()
 
     data = await _frankfurter_get(
-        f"{start_date}..{end_date}",
-        {"base": from_currency_upper, "symbols": to_currency_upper},
+        "v2/rates",
+        {
+            "base": from_currency_upper,
+            "quotes": to_currency_upper,
+            "from": start_date,
+            "to": end_date,
+        },
     )
     if _is_error(data):
         return data
-
-    rates = data.get("rates")
-    if not isinstance(rates, dict):
+    if not isinstance(data, list):
         return {"error": "API request failed with missing time series data"}
 
     exchange_rates: dict[str, float] = {}
-    for date, rate in rates.items():
-        if not isinstance(rate, dict) or to_currency_upper not in rate:
+    for row in data:
+        if not isinstance(row, dict) or "date" not in row or "rate" not in row:
             return {"error": "API request failed with missing time series data"}
-        exchange_rates[str(date)] = float(rate[to_currency_upper])
+        exchange_rates[str(row["date"])] = float(row["rate"])
 
     return {
         "from_currency": from_currency_upper,
