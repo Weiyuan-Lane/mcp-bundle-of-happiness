@@ -15,6 +15,7 @@ services:
       # Agents
       - ./scenarios/0. Simple MCP client and server setup:/app/agents/scenario_0__simple_mcp_setup
       - ./scenarios/1. Managed MCP client setup and server connections:/app/agents/scenario_1__managed_mcp_setup
+      - ./scenarios/2. Custom self-managed MCP servers:/app/agents/scenario_2__custom_self_managed_mcp_servers
       - ./scenarios/X. MCP Sandwich - WebMCP and ChromeDevTools MCP:/app/agents/scenario_x__mcp_sandwich
     ports:
       - "127.0.0.1:${ADK_UI_PORT}:${ADK_UI_PORT}"
@@ -22,6 +23,37 @@ services:
       - "chrome.localhost:host-gateway" # Note - chrome.localhost is needed for reachability as any other hostname is considered as untrusted. Only "*.localhost" will work - https://chromium.googlesource.com/chromium/src/+/HEAD/net/base/url_util.cc#47
 
   # Custom MCP Servers
+  mcp-server-exchange-rate:
+    container_name: mcp-server-exchange-rate
+    build:
+      context: scenarios/2. Custom self-managed MCP servers/mcp-servers/exchange-rate
+      dockerfile: ops/Dockerfile.dev
+    env_file:
+      - .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: ${SCENARIO_2_MCP_SERVER_EXCHANGE_RATE_PORT}
+    working_dir: /app
+    volumes:
+      - ./scenarios/2. Custom self-managed MCP servers/mcp-servers/exchange-rate:/app
+    ports:
+      - "127.0.0.1:${SCENARIO_2_MCP_SERVER_EXCHANGE_RATE_PORT}:${SCENARIO_2_MCP_SERVER_EXCHANGE_RATE_PORT}"
+
+  mcp-server-quickchart:
+    container_name: mcp-server-quickchart
+    build:
+      context: scenarios/2. Custom self-managed MCP servers/mcp-servers/quickchart
+      dockerfile: ops/Dockerfile.dev
+    env_file:
+      - .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: ${SCENARIO_2_MCP_SERVER_QUICKCHART_PORT}
+    working_dir: /app
+    volumes:
+      - ./scenarios/2. Custom self-managed MCP servers/mcp-servers/quickchart:/app
+    ports:
+      - "127.0.0.1:${SCENARIO_2_MCP_SERVER_QUICKCHART_PORT}:${SCENARIO_2_MCP_SERVER_QUICKCHART_PORT}"
 
   # Other demo servers
   demo-webmcp-server:
