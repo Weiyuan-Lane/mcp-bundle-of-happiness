@@ -4,17 +4,18 @@ I have no idea why I named it as this. :grimacing:
 
 ## Setup
 
-Make sure you clone with submodules
+1. Make sure you clone with submodules
 ```
 git clone --recurse-submodules git@github.com:Weiyuan-Lane/mcp-bundle-of-happiness.git
 ```
 
-ChromeDevTools MCP is used for one of the scenarios, so make sure you use Chrome too
+2. ChromeDevTools MCP is used for one of the scenarios, so make sure you use Chrome too.
+
 Install Chrome [here](https://www.google.com/chrome/)
 
-Duplicate `.env.sample` to `.env`, and fill in the missing values
+3. Duplicate `.env.sample` to `.env`, and fill in the missing values
 
-Finally, start and stop the all scenarios with make commands (this also opens Chrome with remote debugging for ChromeDevTools MCP):
+4. Finally, start and stop the all scenarios with make commands (this also opens Chrome with remote debugging for ChromeDevTools MCP):
 ```
 make docker-compose-up          # Start
 make docker-compose-down        # Stop
