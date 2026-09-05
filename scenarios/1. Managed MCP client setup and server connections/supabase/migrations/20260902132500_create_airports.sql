@@ -12,6 +12,7 @@ create table airports (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+ALTER TABLE public.airports ENABLE ROW LEVEL SECURITY;
 
 create index airports_city_idx on public.airports (city);
 create index airports_country_code_idx on public.airports (country_code);

@@ -11,6 +11,7 @@ create table hotels (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+ALTER TABLE public.hotels ENABLE ROW LEVEL SECURITY;
 
 create index hotels_city_idx on hotels (city);
 create index hotels_country_code_idx on hotels (country_code);

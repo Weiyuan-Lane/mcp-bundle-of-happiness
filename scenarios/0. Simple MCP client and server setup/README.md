@@ -18,7 +18,5 @@ When you start this scenario with `make docker-compose-up`, the following servic
 
 | Role | In this scenario | What it does |
 | --- | --- | --- |
-| **Client** | Google ADK `McpToolset` on `filesystem_assistant_agent` | Starts the server process, lists its tools, and calls them on the user's behalf |
+| **Client** | Google ADK `McpToolset` | Starts the server process, lists its tools, and calls them on the user's behalf |
 | **Server** | `@modelcontextprotocol/server-filesystem` | Exposes filesystem tools (`list`, `read`, `write`, …) scoped to one folder |
-
-The client is the process that *invokes* the server. The server is the process that *implements* the tools.

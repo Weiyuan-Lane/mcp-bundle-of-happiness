@@ -1,8 +1,8 @@
 import os
 from google.adk import Agent
-from google.adk import Workflow
 from google.adk.tools.mcp_tool import McpToolset
-from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
+from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams, StdioConnectionParams
+from mcp import StdioServerParameters
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -35,6 +35,16 @@ filesystem_mcp_toolset = McpToolset(
             ],
         ),
     ),
+    tool_filter = [
+        'read_text_file',
+        'read_multiple_files',
+        'list_directory',
+        'list_directory_with_sizes',
+        'search_files',
+        'directory_tree',
+        'get_file_info',
+        'list_allowed_directories',
+    ],
 )
 
 supabase_mcp_toolset = McpToolset(

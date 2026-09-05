@@ -1,7 +1,6 @@
 import os
-from instructions import base_instructions, supabase_supplementary_instructions
+from .instructions import base_instructions, supabase_replacement_instructions
 from google.adk import Agent
-from google.adk import Workflow
 from google.adk.tools.mcp_tool import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
 from dotenv import load_dotenv
@@ -46,7 +45,7 @@ if SUPABASE_TOKEN:
         ],
     )
     tools.append(supabase_mcp_toolset)
-    SYSTEM_INSTRUCTION += supabase_supplementary_instructions
+    SYSTEM_INSTRUCTION = supabase_replacement_instructions
 
 root_agent = Agent(
     model = MODEL_VERSION,

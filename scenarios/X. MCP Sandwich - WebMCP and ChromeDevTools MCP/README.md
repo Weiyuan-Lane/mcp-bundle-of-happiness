@@ -21,7 +21,7 @@ Access these URLs in your browser to interact with the agent interface and the d
 
 | Role | In this scenario | What it does |
 | --- | --- | --- |
-| **Client** | Google ADK `McpToolset` on `chrome_devtools_agent` | Starts the server process, lists its tools, and lets the model call them |
+| **Client** | Google ADK `McpToolset` | Starts the server process, lists its tools, and lets the model call them |
 | **Server** | `chrome-devtools-mcp` | Browser tools plus `list_webmcp_tools` / `execute_webmcp_tool` for the selected page |
 
 The client is the process that *invokes* the server. The model calls those tools directly.
