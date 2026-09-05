@@ -44,7 +44,7 @@ chrome_devtools_mcp_client = McpToolset(
 
 root_agent = Agent(
     model = MODEL_VERSION,
-    name = 'chrome_devtools_agent',
+    name = 'browser_interaction_agent',
     instruction = SYSTEM_INSTRUCTION,
     tools = [chrome_devtools_mcp_client],
 )

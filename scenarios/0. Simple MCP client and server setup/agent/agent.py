@@ -8,12 +8,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get environment variables ---------------------------------------------------
-FOLDER_DIRECTORY = os.getenv('SCENARIO_0_FOLDER_DIRECTORY')
+FOLDER_DIRECTORY_PATH = os.getenv('SCENARIO_0_FOLDER_DIRECTORY_PATH')
 MODEL_VERSION = os.getenv('SCENARIO_0_MODEL_VERSION')
 MCP_SERVER_FILESYSTEM_VERSION = os.getenv('SCENARIO_0_MCP_SERVER_FILESYSTEM_VERSION')
 # end -------------------------------------------------------------------------
 
-TARGET_FOLDER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), FOLDER_DIRECTORY)
+TARGET_FOLDER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), FOLDER_DIRECTORY_PATH)
 
 SYSTEM_INSTRUCTION = '''\
 Help the user manage their files.
@@ -23,23 +23,25 @@ However, you should ignore the .keep file for all operations (both read and writ
 Never guess, invent, or recall file names, contents, or directory structure. Always call the filesystem MCP tools first and answer only from those tool results. If a tool call fails or returns nothing, say so — do not fill in the gap.
 '''
 
+filesystem_mcp_toolset = McpToolset(
+    connection_params = StdioConnectionParams(
+        server_params = StdioServerParameters(
+            command = 'npx',
+            args = [
+                "-y",
+                f"@modelcontextprotocol/server-filesystem@{MCP_SERVER_FILESYSTEM_VERSION}",
+                os.path.abspath(TARGET_FOLDER_PATH),
+            ],
+        ),
+    ),
+)
+
 filesystem_assistant_agent = Agent(
     model = MODEL_VERSION,
     name = 'filesystem_assistant_agent',
     instruction = SYSTEM_INSTRUCTION,
     tools = [
-        McpToolset(
-            connection_params = StdioConnectionParams(
-                server_params = StdioServerParameters(
-                    command = 'npx',
-                    args = [
-                        "-y",
-                        f"@modelcontextprotocol/server-filesystem@{MCP_SERVER_FILESYSTEM_VERSION}",
-                        os.path.abspath(TARGET_FOLDER_PATH),
-                    ],
-                ),
-            ),
-        )
+        filesystem_mcp_toolset,
     ],
 )
 
