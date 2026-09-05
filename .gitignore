@@ -7,6 +7,7 @@ scenarios/0. Simple MCP client and server setup/mcp-directory/*
 !scenarios/0. Simple MCP client and server setup/mcp-directory/.keep
 
 scenarios/**/__pycache__/
+scenarios/**/local-env/
 scenarios/**/.adk/
 scenarios/**/node_modules/
 
