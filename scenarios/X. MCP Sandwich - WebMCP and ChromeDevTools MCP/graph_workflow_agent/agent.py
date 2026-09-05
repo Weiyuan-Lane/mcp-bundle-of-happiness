@@ -1,24 +1,18 @@
 import os
 import uuid
-from typing import Literal
+from collections.abc import AsyncGenerator
+from typing import Any, Literal
 from google.adk import Agent, Context, Event, Workflow
 from google.adk.events import RequestInput
 from google.adk.workflow import DEFAULT_ROUTE, FunctionNode
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from .constants import (
-    RESTART_ANOTHER_PAGE,
-    RESTART_CHOSE_WRONG,
-    RESTART_PAGE_INVALID,
-    RESTART_UNKNOWN,
-    STATE_PAGES,
-    STATE_WEBMCP_TOOLS,
-)
+from .constants import RestartReason, STATE_PAGES, STATE_WEBMCP_TOOLS
 from .utils import as_dict, as_text, pages_as_markdown, webmcp_tools_as_markdown, run_chrome_devtools_mcp_client_tool, refresh_pages, refresh_webmcp_tools, create_restart_text, resume_user_text, tool_input_json
 load_dotenv()
 
 # Get environment variables ---------------------------------------------------
-MODEL_VERSION = os.getenv('SCENARIO_X_MODEL_VERSION')
+MODEL_VERSION: str | None = os.getenv('SCENARIO_X_MODEL_VERSION')
 # end -------------------------------------------------------------------------
 
 class BrowserInteractionDecision(BaseModel):
@@ -48,7 +42,7 @@ class WebmcpValidationDecision(BaseModel):
 
 
 # Graph Chrome DevTools MCP client flow - Declare deps first ------------------
-async def browser_interaction_action(ctx: Context, node_input):
+async def browser_interaction_action(ctx: Context, node_input: Any) -> AsyncGenerator[Event | RequestInput, None]:
     # If this was passed from a resume, get the user reply and refresh the pages and webmcp tools
     if ctx.resume_inputs:
         user_reply = resume_user_text(ctx)
@@ -89,13 +83,13 @@ async def browser_interaction_action(ctx: Context, node_input):
         message = message,
     )
 
-browser_interaction_action_node = FunctionNode(
+browser_interaction_action_node: FunctionNode = FunctionNode(
     func = browser_interaction_action,
     name = 'browser_interaction_action_node',
     rerun_on_resume = True,
 )
 
-def browser_interaction_instruction(ctx) -> str:
+def browser_interaction_instruction(ctx: Context) -> str:
     return (
         'Classify the user request. Use only the current page list and WebMCP tool list.\n\n'
         f'Current pages:\n{pages_as_markdown(ctx.state.get(STATE_PAGES))}\n\n'
@@ -110,7 +104,7 @@ def browser_interaction_instruction(ctx) -> str:
         'Do not invent tool names, URLs, or page ids.'
     )
 
-browser_interaction_agent = Agent(
+browser_interaction_agent: Agent = Agent(
     model = MODEL_VERSION,
     name = 'browser_interaction_agent',
     instruction = browser_interaction_instruction,
@@ -118,12 +112,12 @@ browser_interaction_agent = Agent(
     mode = 'single_turn',
 )
 
-def browser_interaction_router(ctx: Context, node_input):
-    payload = as_dict(node_input)
+def browser_interaction_router(ctx: Context, node_input: Any) -> Event:
+    payload: dict[str, Any] = as_dict(node_input)
     intent = payload.get('intent')
 
     if intent == 'open_page' and payload.get('url'):
-        output = {'url': payload['url']}
+        output: dict[str, Any] = {'url': payload['url']}
         return Event(output = output, route = 'open_page')
 
     if intent == 'select_page' and payload.get('page_id') is not None:
@@ -137,13 +131,13 @@ def browser_interaction_router(ctx: Context, node_input):
         }
         return Event(output = output, route = 'execute_webmcp_tool')
 
-    output = {'restart_reason': RESTART_CHOSE_WRONG}
+    output = {'restart_reason': RestartReason.CHOSE_WRONG}
     return Event(output = output, route = 'browser_interaction_from_start')
 
-async def open_page_action_and_router_node(ctx: Context, node_input):
+async def open_page_action_and_router_node(ctx: Context, node_input: Any) -> Event:
     url = as_dict(node_input).get('url', None)
     if not url:
-        output = {'error': 'missing url', 'restart_reason': RESTART_UNKNOWN}
+        output: dict[str, Any] = {'error': 'missing url', 'restart_reason': RestartReason.UNKNOWN}
         return Event(
             message = 'No URL was provided to open.',
             output = output,
@@ -153,7 +147,7 @@ async def open_page_action_and_router_node(ctx: Context, node_input):
     try:
         result = await run_chrome_devtools_mcp_client_tool(ctx, 'new_page', {'url': url})
     except Exception as error:
-        output = {'error': str(error), 'restart_reason': RESTART_UNKNOWN}
+        output = {'error': str(error), 'restart_reason': RestartReason.UNKNOWN}
         return Event(
             message = f'Failed to open {url}: {error}',
             output = output,
@@ -168,10 +162,10 @@ async def open_page_action_and_router_node(ctx: Context, node_input):
         route = 'interact_with_webmcp_tool',
     )
 
-async def select_page_action_and_router_node(ctx: Context, node_input):
+async def select_page_action_and_router_node(ctx: Context, node_input: Any) -> Event:
     page_id = as_dict(node_input).get('page_id', None)
     if page_id is None:
-        output = {'error': 'missing page_id', 'restart_reason': RESTART_UNKNOWN}
+        output: dict[str, Any] = {'error': 'missing page_id', 'restart_reason': RestartReason.UNKNOWN}
         return Event(
             message = 'No page id was provided to select.',
             output = output,
@@ -185,7 +179,7 @@ async def select_page_action_and_router_node(ctx: Context, node_input):
             {'pageId': int(page_id), 'bringToFront': True},
         )
     except Exception as error:
-        output = {'error': str(error), 'restart_reason': RESTART_UNKNOWN}
+        output = {'error': str(error), 'restart_reason': RestartReason.UNKNOWN}
         return Event(
             message = f'Failed to select page {page_id}: {error}',
             output = output,
@@ -200,7 +194,7 @@ async def select_page_action_and_router_node(ctx: Context, node_input):
         route = 'interact_with_webmcp_tool',
     )
 
-async def interact_with_webmcp_tool_action(ctx: Context, node_input):
+async def interact_with_webmcp_tool_action(ctx: Context, node_input: Any) -> AsyncGenerator[Event | RequestInput, None]:
     if ctx.resume_inputs:
         user_reply = resume_user_text(ctx)
         await refresh_webmcp_tools(ctx)
@@ -220,13 +214,13 @@ async def interact_with_webmcp_tool_action(ctx: Context, node_input):
         message = message,
     )
 
-interact_with_webmcp_tool_action_node = FunctionNode(
+interact_with_webmcp_tool_action_node: FunctionNode = FunctionNode(
     func=interact_with_webmcp_tool_action,
     name='interact_with_webmcp_tool_action_node',
     rerun_on_resume=True,
 )
 
-def validate_webmcp_instruction(ctx) -> str:
+def validate_webmcp_instruction(ctx: Context) -> str:
     return (
         'Validate whether the user wants to run a WebMCP tool on the current page.\n\n'
         f'Known WebMCP tools:\n{webmcp_tools_as_markdown(ctx.state.get(STATE_WEBMCP_TOOLS))}\n\n'
@@ -242,7 +236,7 @@ def validate_webmcp_instruction(ctx) -> str:
     )
 
 
-validate_and_execute_webmcp_agent = Agent(
+validate_and_execute_webmcp_agent: Agent = Agent(
     model = MODEL_VERSION,
     name = 'validate_and_execute_webmcp_agent',
     instruction = validate_webmcp_instruction,
@@ -250,12 +244,12 @@ validate_and_execute_webmcp_agent = Agent(
     mode = 'single_turn',
 )
 
-def validate_and_execute_webmcp_router(ctx: Context, node_input):
-    payload = as_dict(node_input)
+def validate_and_execute_webmcp_router(ctx: Context, node_input: Any) -> Event:
+    payload: dict[str, Any] = as_dict(node_input)
     decision = payload.get('decision')
 
     if decision == 'execute_webmcp_tool' and payload.get('tool_name'):
-        output = {
+        output: dict[str, Any] = {
             'tool_name': payload['tool_name'],
             'tool_input': tool_input_json(payload.get('tool_input')),
         }
@@ -269,18 +263,19 @@ def validate_and_execute_webmcp_router(ctx: Context, node_input):
         }
         return Event(output = output, route = 'invalid_webmcp_tool')
 
+    restart_reason: RestartReason
     if decision == 'page_invalid':
-        restart_reason = RESTART_PAGE_INVALID
+        restart_reason = RestartReason.PAGE_INVALID
     elif decision == 'another_page':
-        restart_reason = RESTART_ANOTHER_PAGE
+        restart_reason = RestartReason.ANOTHER_PAGE
     else:
-        restart_reason = RESTART_UNKNOWN
+        restart_reason = RestartReason.UNKNOWN
     output = {'restart_reason': restart_reason}
     return Event(output = output, route = 'browser_interaction_from_start')
 
 
-async def execute_webmcp_tool_action_node(ctx: Context, node_input):
-    payload = as_dict(node_input)
+async def execute_webmcp_tool_action_node(ctx: Context, node_input: Any) -> Event:
+    payload: dict[str, Any] = as_dict(node_input)
     tool_name = payload.get('tool_name', None)
     tool_input = tool_input_json(payload.get('tool_input', None))
     if not tool_name:
@@ -311,14 +306,14 @@ async def execute_webmcp_tool_action_node(ctx: Context, node_input):
     )
 
 
-def invalid_webmcp_tool_action_node(ctx: Context, node_input):
+def invalid_webmcp_tool_action_node(ctx: Context, node_input: Any) -> Event:
     outcome_message = as_dict(node_input).get('outcome_message', None)
     if not outcome_message:
         outcome_message = (
             'The last WebMCP tool request was invalid. '
             'Describe the tool more clearly using a name from the list.'
         )
-    output = {'outcome_message': outcome_message}
+    output: dict[str, Any] = {'outcome_message': outcome_message}
     return Event(message = outcome_message, output = output)
 
 # end -------------------------------------------------------------------------
@@ -332,7 +327,7 @@ def invalid_webmcp_tool_action_node(ctx: Context, node_input):
 #   (4) If "router", use it to branch to more "action" nodes
 #   Since most action nodes are the start of the flow, the flow repeats and this is easier to plan and visualise!
 #
-browser_interaction_edges = [
+browser_interaction_edges: list[Any] = [
     # Main browser interaction flow - select page before interacting with webmcp tool
     ('START', browser_interaction_action_node, browser_interaction_agent, browser_interaction_router),
     (browser_interaction_router, {
@@ -371,7 +366,7 @@ browser_interaction_edges = [
     (invalid_webmcp_tool_action_node, interact_with_webmcp_tool_action_node),
 ]
 
-root_agent = Workflow(
+root_agent: Workflow = Workflow(
     name = 'browser_interaction_workflow',
     edges = browser_interaction_edges,
 )

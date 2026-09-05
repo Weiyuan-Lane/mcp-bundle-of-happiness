@@ -15,7 +15,7 @@ When you start this scenario with `make docker-compose-up`, the following servic
 | **ADK UI**           | MCP test client - Contain both Simple and Graph workflow agents below  | [http://localhost:8080](http://localhost:8080) |
 | **Web application**  | App with registered WebMCP tools (the web application)                 | [http://localhost:8090](http://localhost:8090) |
 
-Access these URLs in your browser to interact with the agent interface and the demo web application that exposes WebMCP tools.
+Access these URLs in your browser to interact with the agent interface and the demo web application that exposes WebMCP tools. You can also try the WebMCP discoverability on external sites, like [Google Chrome Labs](https://googlechromelabs.github.io/webmcp-tools/demos/explainer/#compare)
 
 ## Simple Agent MCP configuration
 

@@ -7,18 +7,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get environment variables ---------------------------------------------------
-MODEL_VERSION = os.getenv('SCENARIO_1_MODEL_VERSION')
-GOOGLE_MAPS_URL = os.getenv('SCENARIO_1_GOOGLE_MAPS_URL')
-GOOGLE_MAPS_API_KEY = os.getenv('SCENARIO_1_GOOGLE_MAPS_API_KEY')
-SUPABASE_URL = os.getenv('SCENARIO_1_SUPABASE_URL')
-SUPABASE_TOKEN = os.getenv('SCENARIO_1_SUPABASE_TOKEN')
+MODEL_VERSION: str | None = os.getenv('SCENARIO_1_MODEL_VERSION')
+GOOGLE_MAPS_URL: str | None = os.getenv('SCENARIO_1_GOOGLE_MAPS_URL')
+GOOGLE_MAPS_API_KEY: str | None = os.getenv('SCENARIO_1_GOOGLE_MAPS_API_KEY')
+SUPABASE_URL: str | None = os.getenv('SCENARIO_1_SUPABASE_URL')
+SUPABASE_TOKEN: str | None = os.getenv('SCENARIO_1_SUPABASE_TOKEN')
 # end -------------------------------------------------------------------------
 
-SYSTEM_INSTRUCTION = base_instructions
+SYSTEM_INSTRUCTION: str = base_instructions
 
 # Google Maps MCP - Search places, Lookup Weather, Compute routes
 # See the list of tools here: https://developers.google.com/maps/ai/grounding-lite#tools
-maps_mcp_toolset = McpToolset(
+maps_mcp_toolset: McpToolset = McpToolset(
     connection_params = StreamableHTTPConnectionParams(
         url = GOOGLE_MAPS_URL,
         headers = {
@@ -29,11 +29,11 @@ maps_mcp_toolset = McpToolset(
     )
 )
 
-tools = [maps_mcp_toolset]
+tools: list[McpToolset] = [maps_mcp_toolset]
 
 # Optional - Query Supabase database for hotel and airport stats
 if SUPABASE_TOKEN:
-    supabase_mcp_toolset = McpToolset(
+    supabase_mcp_toolset: McpToolset = McpToolset(
         connection_params = StreamableHTTPConnectionParams(
             url = SUPABASE_URL,
             headers = {
@@ -47,7 +47,7 @@ if SUPABASE_TOKEN:
     tools.append(supabase_mcp_toolset)
     SYSTEM_INSTRUCTION = supabase_replacement_instructions
 
-root_agent = Agent(
+root_agent: Agent = Agent(
     model = MODEL_VERSION,
     name = 'travel_agent',
     instruction = SYSTEM_INSTRUCTION,

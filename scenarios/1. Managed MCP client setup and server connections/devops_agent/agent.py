@@ -7,16 +7,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get environment variables ---------------------------------------------------
-MODEL_VERSION = os.getenv('SCENARIO_1_MODEL_VERSION')
-SUPABASE_URL = os.getenv('SCENARIO_1_SUPABASE_URL')
-SUPABASE_TOKEN = os.getenv('SCENARIO_1_SUPABASE_TOKEN')
-MCP_SERVER_FILESYSTEM_VERSION = os.getenv('SCENARIO_1_MCP_SERVER_FILESYSTEM_VERSION')
-MIGRATIONS_DIRECTORY_PATH = os.getenv('SCENARIO_1_MIGRATIONS_DIRECTORY_PATH')
+MODEL_VERSION: str | None = os.getenv('SCENARIO_1_MODEL_VERSION')
+SUPABASE_URL: str | None = os.getenv('SCENARIO_1_SUPABASE_URL')
+SUPABASE_TOKEN: str | None = os.getenv('SCENARIO_1_SUPABASE_TOKEN')
+MCP_SERVER_FILESYSTEM_VERSION: str | None = os.getenv('SCENARIO_1_MCP_SERVER_FILESYSTEM_VERSION')
+MIGRATIONS_DIRECTORY_PATH: str | None = os.getenv('SCENARIO_1_MIGRATIONS_DIRECTORY_PATH')
 # end -------------------------------------------------------------------------
 
-TARGET_FOLDER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), MIGRATIONS_DIRECTORY_PATH)
+TARGET_FOLDER_PATH: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), MIGRATIONS_DIRECTORY_PATH)
 
-SYSTEM_INSTRUCTION = '''\
+SYSTEM_INSTRUCTION: str = '''\
     You are a DevOps agent.
     You are responsible for managing the database.
     You can manage the database, such as listing tables, extensions, and applying migrations (together with the filesystem MCP tools).
@@ -24,7 +24,7 @@ SYSTEM_INSTRUCTION = '''\
     Never guess, invent, or recall file names, contents, or directory structure. Always call the filesystem MCP tools first and answer only from those tool results. If a tool call fails or returns nothing, say so — do not fill in the gap.
 '''
 
-filesystem_mcp_toolset = McpToolset(
+filesystem_mcp_toolset: McpToolset = McpToolset(
     connection_params = StdioConnectionParams(
         server_params = StdioServerParameters(
             command = 'npx',
@@ -47,7 +47,7 @@ filesystem_mcp_toolset = McpToolset(
     ],
 )
 
-supabase_mcp_toolset = McpToolset(
+supabase_mcp_toolset: McpToolset = McpToolset(
     connection_params = StreamableHTTPConnectionParams(
         url = SUPABASE_URL,
         headers = {
@@ -63,7 +63,7 @@ supabase_mcp_toolset = McpToolset(
     ],
 )
 
-root_agent = Agent(
+root_agent: Agent = Agent(
     model = MODEL_VERSION,
     name = 'devops_agent',
     instruction = SYSTEM_INSTRUCTION,
