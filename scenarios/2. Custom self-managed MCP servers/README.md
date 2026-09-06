@@ -2,6 +2,8 @@
 
 ← [Back to MCP Bundle of Happiness](../../README.md)
 
+![Scenario 2 gif](https://github.com/user-attachments/assets/4316105c-743d-4c8b-b2bb-b0b83fcf79b2)
+
 This scenario runs **your own MCP servers** next to the ADK client. The Exchange-rate and QuickChart servers are FastMCP servers, used by our ADK agent.
 
 The agent converts any two currencies, looks up current and historical rates, and can chart a series with QuickChart when that helps.
