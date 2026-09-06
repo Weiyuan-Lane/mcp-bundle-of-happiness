@@ -2,6 +2,8 @@
 
 ← [Back to MCP Bundle of Happiness](../../README.md)
 
+![Scenario X gif](https://github.com/user-attachments/assets/50c14f00-d3e8-4e87-95b8-d8f5738cbaed)
+
 This scenario sandwiches two MCP layers: an ADK agent as the **client**, and `chrome-devtools-mcp` as the **server**, started on demand with **npx**. Page-exposed WebMCP tools are reached only through that server.
 
 The agent opens, lists, and selects Chrome pages, then lists and runs WebMCP tools on the selected page.

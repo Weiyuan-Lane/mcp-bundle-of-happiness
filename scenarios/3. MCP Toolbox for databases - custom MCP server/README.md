@@ -2,6 +2,8 @@
 
 ← [Back to MCP Bundle of Happiness](../../README.md)
 
+![Scenario 3 gif](https://github.com/user-attachments/assets/bf5c2951-c185-403a-8020-422c48aceb57)
+
 This scenario runs [MCP Toolbox for Databases](https://googleapis.github.io/genai-toolbox/) as a **custom MCP server** next to the ADK client. Toolbox turns YAML-declared SQL into tools over a local Postgres of dance clips.[^1]
 
 The **dance trainer agent** asks whether you want a random clip, a genre, or a filming situation, then plays matching videos and lets you narrow by camera, music, choreography, or dancer.
