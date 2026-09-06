@@ -14,6 +14,8 @@ scenarios/**/node_modules/
 keycloak/.data/*
 !keycloak/.data/.keep
 
+scenarios/3. MCP Toolbox for databases - custom MCP server/mcp-toolbox-database-local-cache/*
+
 **/.DS_Store
 
 
