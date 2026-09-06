@@ -1,0 +1,14 @@
+/* ADK bubbles are inline-block; media intrinsic width expands them. */
+.bot-message .message-card,
+.user-message .message-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+markdown video,
+markdown img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}

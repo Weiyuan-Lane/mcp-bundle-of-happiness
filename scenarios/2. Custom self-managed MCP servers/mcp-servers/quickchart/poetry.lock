@@ -863,22 +863,13 @@ anyio = ">=4.5"
 httpx = ">=0.27.1,<1.0.0"
 httpx-sse = ">=0.4"
 jsonschema = ">=4.20.0"
-pydantic = [
-    {version = ">=2.11.0,<3.0.0", markers = "python_version < \"3.14\""},
-    {version = ">=2.12.0,<3.0.0", markers = "python_version >= \"3.14\""},
-]
+pydantic = {version = ">=2.12.0,<3.0.0", markers = "python_version >= \"3.14\""}
 pydantic-settings = ">=2.5.2"
 pyjwt = {version = ">=2.10.1", extras = ["crypto"]}
 python-multipart = ">=0.0.9"
-pywin32 = [
-    {version = ">=310", markers = "sys_platform == \"win32\" and python_version < \"3.14\""},
-    {version = ">=311", markers = "sys_platform == \"win32\" and python_version >= \"3.14\""},
-]
+pywin32 = {version = ">=311", markers = "sys_platform == \"win32\" and python_version >= \"3.14\""}
 sse-starlette = ">=1.6.1"
-starlette = [
-    {version = ">=0.27", markers = "python_version < \"3.14\""},
-    {version = ">=0.48.0", markers = "python_version >= \"3.14\""},
-]
+starlette = {version = ">=0.48.0", markers = "python_version >= \"3.14\""}
 typing-extensions = ">=4.9.0"
 typing-inspection = ">=0.4.1"
 uvicorn = {version = ">=0.31.1", markers = "sys_platform != \"emscripten\""}
@@ -1995,5 +1986,5 @@ files = [
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.13,<4.0"
-content-hash = "d94717eb771adb5eabec65c2c47e23286c25487becee3f823dc3f9bc17d1f460"
+python-versions = ">=3.14,<4.0"
+content-hash = "f8ed22b9d6c65f3c2ef3c775f818730f8d83659a0d127125994768c2b7864bb9"

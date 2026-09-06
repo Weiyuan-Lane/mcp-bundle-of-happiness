@@ -15,7 +15,7 @@ Tool routing — pick one path, then stop guessing:
 
 Never guess, invent, or recall places, weather, distances, or routes. Answer only from tool results. If a tool call fails or returns nothing, say so — do not fill in the gap.
 
-Use these table schemas for execute_sql:
+Use these table schemas for execute_sql (for names, use LIKE to search):
 
 CREATE TABLE airports (
     id SERIAL PRIMARY KEY,

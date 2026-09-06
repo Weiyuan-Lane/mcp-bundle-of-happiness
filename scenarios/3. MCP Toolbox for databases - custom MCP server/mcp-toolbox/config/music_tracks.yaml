@@ -1,0 +1,76 @@
+kind: tool
+name: list_music_tempos
+type: postgres-sql
+source: mcp-toolbox-db
+annotations:
+  readOnlyHint: true
+  idempotentHint: true
+description: |
+  List music tracks (id, genre, tempo).
+  Two uses:
+  - Start over or first browse: leave the video-row filters empty.
+  - Available tracks given current filters: pass the video_entries
+    filters already chosen. Only tracks that exist on matching clips
+    are returned.
+  Never guess an id or tempo.
+  Returns at most 20 rows. Pass offset 20, 40, … if the user asks for more.
+scopesRequired:
+  - ${SCENARIO_3_KEYCLOAK_SCOPE_READ_MUSIC_TRACKS}
+parameters:
+  - name: genre_id
+    type: string
+    description: Optional genre_id already chosen (for example gBR).
+    default: ""
+    required: false
+  - name: filming_situation_id
+    type: string
+    description: Optional filming_situation_id already chosen (for example sBM).
+    default: ""
+    required: false
+  - name: camera_position_id
+    type: string
+    description: Optional camera_position_id already chosen (for example c01).
+    default: ""
+    required: false
+  - name: choreography_id
+    type: string
+    description: Optional choreography_id already chosen (for example ch01).
+    default: ""
+    required: false
+  - name: dancer_id
+    type: string
+    description: Optional dancer id already chosen (for example d04).
+    default: ""
+    required: false
+  - name: offset
+    type: integer
+    description: Rows to skip. 0 for the first page, 20 for the second, 40 for the third.
+    default: 0
+    required: false
+    minValue: 0
+statement: |
+  SELECT DISTINCT
+    mt.id,
+    mt.genre_id,
+    mt.tempo
+  FROM music_tracks mt
+  LEFT JOIN video_entries ve
+    ON ve.music_track_id = mt.id
+   AND (NULLIF($1, '') IS NULL OR ve.genre_id = $1)
+   AND (NULLIF($2, '') IS NULL OR ve.filming_situation_id = $2)
+   AND (NULLIF($3, '') IS NULL OR ve.camera_position_id = $3)
+   AND (NULLIF($4, '') IS NULL OR ve.choreography_id = $4)
+   AND (NULLIF($5, '') IS NULL OR ve.dancer_ids @> ARRAY[$5]::varchar[])
+  WHERE (NULLIF($1, '') IS NULL OR mt.genre_id = $1)
+    AND (
+      (
+        NULLIF($1, '') IS NULL
+        AND NULLIF($2, '') IS NULL
+        AND NULLIF($3, '') IS NULL
+        AND NULLIF($4, '') IS NULL
+        AND NULLIF($5, '') IS NULL
+      )
+      OR ve.id IS NOT NULL
+    )
+  ORDER BY mt.genre_id, mt.tempo, mt.id
+  LIMIT 20 OFFSET $6
