@@ -1,0 +1,8 @@
+kind: source
+name: mcp-toolbox-db
+type: postgres
+host: ${SCENARIO_3_MCP_TOOLBOX_DATABASE_HOST}
+port: ${SCENARIO_3_MCP_TOOLBOX_DATABASE_PORT:8094}
+database: ${SCENARIO_3_MCP_TOOLBOX_DATABASE_NAME:mcp-toolbox-db}
+user: ${SCENARIO_3_MCP_TOOLBOX_DATABASE_USER}
+password: ${SCENARIO_3_MCP_TOOLBOX_DATABASE_PASSWORD}

@@ -1,7 +1,8 @@
-FROM alpine:3.24.1 AS builder
+FROM --platform=linux/amd64 alpine:3.23.5
+
+ARG MCP_TOOLBOX_VERSION=1.10.0
 
 WORKDIR /app
-ARG MCP_TOOLBOX_VERSION=1.10.0
 
 RUN apk add --no-cache ca-certificates curl gcompat libstdc++ && \
     curl -L -o /app/toolbox "https://storage.googleapis.com/mcp-toolbox-for-databases/v${MCP_TOOLBOX_VERSION}/linux/amd64/toolbox" && \

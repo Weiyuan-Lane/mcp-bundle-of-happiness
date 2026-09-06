@@ -1,0 +1,21 @@
+kind: prompt
+name: recommend_dance_video
+description: Ask preference questions, then suggest dance clips.
+messages:
+  - role: user
+    content: |
+      Find a dance clip. Always end with video_url from a tool. Never invent an id or URL.
+
+      Start: ask random, genre, or filming situation. Do not assume.
+      - Random, no preference → suggest_random_videos (no args). Stop using it once they have a preference.
+      - Genre → list_genres, then list_videos_by_genre(genre_id).
+      - Filming situation → list_filming_situations, then list_videos_by_filming_situation(filming_situation_id).
+      Stay on that video tool. If they add the other dimension later, pass it as the optional id.
+
+      Video tools play clips. When listing genre, situation, camera, music,
+      choreography, or dancer, pass the video_entries filters already chosen
+      (omit the column you are listing). Leave those empty to browse all
+      or to start over.
+
+      Video tools accept only ids on video_entries (not tempo, name, or dancer attributes).
+      Lists return 20 rows; next page is offset +20. Keep chosen filters. If empty, say so and offer to loosen. Present video_url. Never show ids to the user — only human labels (names, camera description, tempo, dancer attributes). Keep the id↔label map from tool results and resolve their pick to an id.

@@ -12,6 +12,7 @@ services:
     working_dir: /app
     volumes:
       - ./adk-ui/node_modules:/app/node_modules
+      - ./adk-ui/custom.css:/usr/local/lib/python3.14/site-packages/google/adk/cli/browser/custom.css:ro
       # Agents
       - ./scenarios/0. Simple MCP client and server setup:/app/agents/scenario_0__simple_mcp_setup
       - ./scenarios/1. Managed MCP client setup and server connections:/app/agents/scenario_1__managed_mcp_setup
@@ -24,6 +25,7 @@ services:
       - "chrome.localhost:host-gateway" # Note - chrome.localhost is needed for reachability as any other hostname is considered as untrusted. Only "*.localhost" will work - https://chromium.googlesource.com/chromium/src/+/HEAD/net/base/url_util.cc#47
     depends_on:
       - demo-keycloak
+      - demo-mcp-toolbox
 
   #############################################################################
   # Custom MCP Servers                                                        #
@@ -96,14 +98,15 @@ services:
   # MCP Toolbox for databases
   demo-mcp-toolbox:
     container_name: demo-mcp-toolbox
+    platform: linux/amd64
     build:
-      context: scenarios/3. MCP Toolbox for databases - custom MCP server
-      dockerfile: ops/Dockerfile.dev
+      context: scenarios/3. MCP Toolbox for databases - custom MCP server/mcp-toolbox
+      dockerfile: Dockerfile
     env_file:
       - .env
     working_dir: /app
     volumes:
-      - ./scenarios/3. MCP Toolbox for databases - custom MCP server/mcp-toolbox:/app/mcp-toolbox
+      - ./scenarios/3. MCP Toolbox for databases - custom MCP server/mcp-toolbox/config:/app/config
     ports:
       - "127.0.0.1:${SCENARIO_3_MCP_TOOLBOX_PORT}:${SCENARIO_3_MCP_TOOLBOX_PORT}"
       - "127.0.0.1:${SCENARIO_3_MCP_TOOLBOX_UI_PORT}:${SCENARIO_3_MCP_TOOLBOX_UI_PORT}"
@@ -117,12 +120,12 @@ services:
     environment:
       - POSTGRES_PASSWORD=${SCENARIO_3_MCP_TOOLBOX_DATABASE_PASSWORD}
       - POSTGRES_DB=${SCENARIO_3_MCP_TOOLBOX_DATABASE_NAME}
-      - PGDATA=/data/postgres
+      - PGPORT=${SCENARIO_3_MCP_TOOLBOX_DATABASE_PORT}
     volumes:
-      - ./scenarios/3. MCP Toolbox for databases - custom MCP server/mcp-toolbox-database-local-cache:/data/postgres
-      - ./scenarios/3. MCP Toolbox for databases - custom MCP server/mcp-toolbox/migrations:/docker-entrypoint-initdb.d
+      - ./scenarios/3. MCP Toolbox for databases - custom MCP server/mcp-toolbox-database-local-cache:/var/lib/postgresql
+      - ./scenarios/3. MCP Toolbox for databases - custom MCP server/mcp-toolbox/migrations:/docker-entrypoint-initdb.d:ro
     ports:
-      - "127.0.0.1:${SCENARIO_3_MCP_TOOLBOX_DATABASE_PORT}:5432"
+      - "127.0.0.1:${SCENARIO_3_MCP_TOOLBOX_DATABASE_PORT}:${SCENARIO_3_MCP_TOOLBOX_DATABASE_PORT}"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s

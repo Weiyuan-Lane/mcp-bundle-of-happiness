@@ -10,8 +10,8 @@ MCP_ARGS="--address 0.0.0.0 --port ${MCP_PORT}"
 UI_ARGS="--address 0.0.0.0 --port ${UI_PORT} --ui"
 
 start_toolbox() {
-  if [ -d /app/mcp-toolbox ]; then
-    /app/toolbox --config-folder /app/mcp-toolbox "$@" &
+  if [ -d /app/config ]; then
+    /app/toolbox --config-folder /app/config "$@" &
   else
     /app/toolbox --config tools.yaml "$@" &
   fi

@@ -1,0 +1,82 @@
+kind: tool
+name: list_choreographies
+type: postgres-sql
+source: mcp-toolbox-db
+annotations:
+  readOnlyHint: true
+  idempotentHint: true
+description: |
+  List choreographies. The row key is (genre_id, id); ids like ch01 repeat
+  across genres, so always show the genre name context with the choreography name.
+  Two uses:
+  - Start over or first browse: leave the video-row filters empty.
+  - Available choreographies given current filters: pass the video_entries
+    filters already chosen. Only choreographies that exist on matching clips
+    are returned.
+  Optional name does a case-insensitive contains search.
+  Returns at most 20 rows. Pass offset 20, 40, … if the user asks for more.
+parameters:
+  - name: genre_id
+    type: string
+    description: Optional genre_id already chosen (for example gBR).
+    default: ""
+    required: false
+  - name: filming_situation_id
+    type: string
+    description: Optional filming_situation_id already chosen (for example sBM).
+    default: ""
+    required: false
+  - name: camera_position_id
+    type: string
+    description: Optional camera_position_id already chosen (for example c01).
+    default: ""
+    required: false
+  - name: music_track_id
+    type: string
+    description: Optional music_track_id already chosen (for example mBR0).
+    default: ""
+    required: false
+  - name: dancer_id
+    type: string
+    description: Optional dancer id already chosen (for example d04).
+    default: ""
+    required: false
+  - name: name
+    type: string
+    description: Optional case-insensitive substring of the choreography name (for example "step").
+    default: ""
+    required: false
+  - name: offset
+    type: integer
+    description: Rows to skip. 0 for the first page, 20 for the second, 40 for the third.
+    default: 0
+    required: false
+    minValue: 0
+statement: |
+  SELECT DISTINCT
+    ch.genre_id,
+    ch.id,
+    ch.name
+  FROM choreographies ch
+  LEFT JOIN video_entries ve
+    ON ve.choreography_id = ch.id
+   AND ve.genre_id = ch.genre_id
+   AND (NULLIF($1, '') IS NULL OR ve.genre_id = $1)
+   AND (NULLIF($2, '') IS NULL OR ve.filming_situation_id = $2)
+   AND (NULLIF($3, '') IS NULL OR ve.camera_position_id = $3)
+   AND (NULLIF($4, '') IS NULL OR ve.music_track_id = $4)
+   AND (NULLIF($5, '') IS NULL OR ve.dancer_ids @> ARRAY[$5]::varchar[])
+  WHERE (NULLIF($1, '') IS NULL OR ch.genre_id = $1)
+    AND (NULLIF($6, '') IS NULL OR ch.name ILIKE '%' || $6 || '%')
+    AND (
+      (
+        NULLIF($1, '') IS NULL
+        AND NULLIF($2, '') IS NULL
+        AND NULLIF($3, '') IS NULL
+        AND NULLIF($4, '') IS NULL
+        AND NULLIF($5, '') IS NULL
+      )
+      OR ve.id IS NOT NULL
+    )
+  ORDER BY ch.genre_id, ch.id
+  LIMIT 20 OFFSET $7

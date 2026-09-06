@@ -1,0 +1,98 @@
+kind: tool
+name: list_dancers
+type: postgres-sql
+source: mcp-toolbox-db
+annotations:
+  readOnlyHint: true
+  idempotentHint: true
+description: |
+  List individual dancers (gender, age range, years of experience).
+  Two uses:
+  - Start over or first browse: leave the video-row filters empty.
+  - Available dancers given current filters: pass the video_entries
+    filters already chosen. Only dancers that appear on matching clips
+    are returned.
+  Optional gender, age_range, and dance_experience_year narrow further.
+  Returns at most 20 rows. Pass offset 20, 40, … if the user asks for more.
+parameters:
+  - name: genre_id
+    type: string
+    description: Optional genre_id already chosen (for example gBR).
+    default: ""
+    required: false
+  - name: filming_situation_id
+    type: string
+    description: Optional filming_situation_id already chosen (for example sBM).
+    default: ""
+    required: false
+  - name: camera_position_id
+    type: string
+    description: Optional camera_position_id already chosen (for example c01).
+    default: ""
+    required: false
+  - name: music_track_id
+    type: string
+    description: Optional music_track_id already chosen (for example mBR0).
+    default: ""
+    required: false
+  - name: choreography_id
+    type: string
+    description: Optional choreography_id already chosen (for example ch01).
+    default: ""
+    required: false
+  - name: gender
+    type: string
+    description: Optional gender. Male or Female. Leave empty to skip.
+    default: ""
+    required: false
+  - name: age_range
+    type: string
+    description: >
+      Optional age range. One of "20-25 years old", "25-30 years old",
+      "30-35 years old". Leave empty to skip.
+    default: ""
+    required: false
+  - name: dance_experience_year
+    type: float
+    description: >
+      Optional exact years of dance experience. Pass a negative number
+      (default -1) to skip this filter.
+    default: -1
+    required: false
+  - name: offset
+    type: integer
+    description: Rows to skip. 0 for the first page, 20 for the second, 40 for the third.
+    default: 0
+    required: false
+    minValue: 0
+statement: |
+  SELECT DISTINCT
+    d.id,
+    d.genre_id,
+    d.gender,
+    d.age_range,
+    d.dance_experience_year
+  FROM dancers d
+  LEFT JOIN video_entries ve
+    ON d.id = ANY(ve.dancer_ids)
+   AND (NULLIF($1, '') IS NULL OR ve.genre_id = $1)
+   AND (NULLIF($2, '') IS NULL OR ve.filming_situation_id = $2)
+   AND (NULLIF($3, '') IS NULL OR ve.camera_position_id = $3)
+   AND (NULLIF($4, '') IS NULL OR ve.music_track_id = $4)
+   AND (NULLIF($5, '') IS NULL OR ve.choreography_id = $5)
+  WHERE (NULLIF($1, '') IS NULL OR d.genre_id = $1)
+    AND (NULLIF($6, '') IS NULL OR d.gender::text = $6)
+    AND (NULLIF($7, '') IS NULL OR d.age_range::text = $7)
+    AND ($8 < 0 OR d.dance_experience_year = $8)
+    AND (
+      (
+        NULLIF($1, '') IS NULL
+        AND NULLIF($2, '') IS NULL
+        AND NULLIF($3, '') IS NULL
+        AND NULLIF($4, '') IS NULL
+        AND NULLIF($5, '') IS NULL
+      )
+      OR ve.id IS NOT NULL
+    )
+  ORDER BY d.id
+  LIMIT 20 OFFSET $9

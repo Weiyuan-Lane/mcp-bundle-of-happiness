@@ -13,5 +13,17 @@ RUN apk add --no-cache \
     pip install "toolbox-core>=1.2.0,<2.0.0" && \
     pip install "python-dotenv>=1,<2"
 
+COPY adk-ui/custom.css /tmp/adk-custom.css
+RUN python3 -c "\
+from pathlib import Path; \
+import google.adk; \
+browser = Path(google.adk.__file__).resolve().parent / 'cli' / 'browser'; \
+(browser / 'custom.css').write_text(Path('/tmp/adk-custom.css').read_text()); \
+index = browser / 'index.html'; \
+html = index.read_text(); \
+link = '<link rel=\"stylesheet\" href=\"custom.css\">'; \
+html = html if link in html else html.replace('</head>', link + '</head>', 1); \
+index.write_text(html)"
+
 ENTRYPOINT [ "sh", "-c" ]
 CMD [ "adk web --host=0.0.0.0 --port=$PORT --allow_origins=$FRONTEND_URL_ORIGIN $AGENTS_DIR" ]
