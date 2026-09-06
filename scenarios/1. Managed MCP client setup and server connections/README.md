@@ -2,7 +2,7 @@
 
 ← [Back to MCP Bundle of Happiness](../../README.md)
 
-![Scenario 1 gif](https://github.com/user-attachments/assets/808d0437-ea59-45c7-afe5-ccf620edb227)
+![Scenario 1 gif](https://github.com/user-attachments/assets/8959ccef-3e64-4ccf-a52e-83b9dcab1992)
 
 This scenario connects ADK agents to **managed MCP servers** from Google Maps and Supabase. Those servers already exist on the public internet. The agents are the **clients**: they authenticate over Streamable HTTP and call the tools those services expose.
 

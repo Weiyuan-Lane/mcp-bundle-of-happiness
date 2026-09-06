@@ -2,6 +2,8 @@
 
 ← [Back to MCP Bundle of Happiness](../../README.md)
 
+![Scenario 1 gif](https://github.com/user-attachments/assets/808d0437-ea59-45c7-afe5-ccf620edb227)
+
 This scenario is the smallest useful MCP loop: an ADK agent as the **client**, and the official filesystem MCP package as the **server**, started on demand with **npx**.
 
 The agent can list, read, and manage files only inside `mcp-directory/`. It never invents paths or contents — it always calls the filesystem tools first.
