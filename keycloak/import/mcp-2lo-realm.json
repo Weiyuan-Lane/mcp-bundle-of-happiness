@@ -6,7 +6,7 @@
   "sslRequired": "none",
   "registrationAllowed": false,
   "resetPasswordAllowed": false,
-  "accessTokenLifespan": 300,
+  "accessTokenLifespan": 14400,
   "clients": [
     {
       "clientId": "adk",
