@@ -41,7 +41,7 @@ tools: list[McpToolset] = [
 
 root_agent: Agent = Agent(
     model = MODEL_VERSION,
-    name = 'financial_advisor_agent',
+    name = 'misconfigured_agent',
     instruction = SYSTEM_INSTRUCTION,
     tools = tools,
 )

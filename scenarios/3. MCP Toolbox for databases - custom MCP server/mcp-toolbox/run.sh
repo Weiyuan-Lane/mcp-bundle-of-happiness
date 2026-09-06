@@ -5,9 +5,10 @@ sleep 3
 
 MCP_PORT="${SCENARIO_3_MCP_TOOLBOX_PORT:-8093}"
 UI_PORT="${SCENARIO_3_MCP_TOOLBOX_UI_PORT:-8082}"
+TOOLBOX_URL="${TOOLBOX_URL:-${SCENARIO_3_MCP_TOOLBOX_URL:-http://127.0.0.1:${MCP_PORT}/mcp}}"
 
-MCP_ARGS="--address 0.0.0.0 --port ${MCP_PORT}"
-UI_ARGS="--address 0.0.0.0 --port ${UI_PORT} --ui"
+MCP_ARGS="--address 0.0.0.0 --port ${MCP_PORT} --toolbox-url ${TOOLBOX_URL}"
+UI_ARGS="--address 0.0.0.0 --port ${UI_PORT} --ui --toolbox-url ${TOOLBOX_URL}"
 
 start_toolbox() {
   if [ -d /app/config ]; then

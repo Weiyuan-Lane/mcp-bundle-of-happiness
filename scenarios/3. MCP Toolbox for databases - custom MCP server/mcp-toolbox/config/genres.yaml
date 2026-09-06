@@ -13,6 +13,8 @@ description: |
     filters already chosen. Only genres that exist on matching clips
     are returned.
   Returns at most 20 rows. Pass offset 20, 40, … if the user asks for more.
+scopesRequired:
+  - ${SCENARIO_3_KEYCLOAK_SCOPE_READ_GENRES}
 parameters:
   - name: filming_situation_id
     type: string

@@ -14,8 +14,8 @@ load_dotenv()
 # Get environment variables ---------------------------------------------------
 HOST: str = os.getenv("SCENARIO_2_MCP_SERVER_QUICKCHART_HOST", "localhost")
 PORT: int = int(os.getenv("SCENARIO_2_MCP_SERVER_QUICKCHART_PORT", "8000"))
-KEYCLOAK_JWKS_URI: str = os.environ["KEYCLOAK_JWKS_URI"]
-KEYCLOAK_ISSUER: str = os.environ["KEYCLOAK_ISSUER"]
+KEYCLOAK_JWKS_URI: str = os.environ["SCENARIO_2_KEYCLOAK_JWKS_URI"]
+KEYCLOAK_ISSUER: str = os.environ["SCENARIO_2_KEYCLOAK_ISSUER"]
 KEYCLOAK_CLIENT_CUSTOM_MCP_QUICKCHART_ID: str = os.environ["SCENARIO_2_KEYCLOAK_CLIENT_CUSTOM_MCP_QUICKCHART_ID"]
 QUICKCHART_SCOPE: str = os.environ["SCENARIO_2_KEYCLOAK_SCOPE_QUICKCHART"]
 # end -------------------------------------------------------------------------

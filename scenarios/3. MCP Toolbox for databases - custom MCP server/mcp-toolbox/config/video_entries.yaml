@@ -11,6 +11,8 @@ description: |
   You may later add filming_situation_id or other ids stored on the row
   (camera_position_id, music_track_id, choreography_id, dancer_id).
   Always present video_url. Returns at most 20 rows. Use offset for more pages.
+scopesRequired:
+  - ${SCENARIO_3_KEYCLOAK_SCOPE_READ_VIDEO_ENTRIES}
 parameters:
   - name: genre_id
     type: string
@@ -79,6 +81,8 @@ description: |
   You may later add genre_id or other ids stored on the row
   (camera_position_id, music_track_id, choreography_id, dancer_id).
   Always present video_url. Returns at most 20 rows. Use offset for more pages.
+scopesRequired:
+  - ${SCENARIO_3_KEYCLOAK_SCOPE_READ_VIDEO_ENTRIES}
 parameters:
   - name: filming_situation_id
     type: string
@@ -147,6 +151,8 @@ description: |
   preference. If they already chose a genre, use list_videos_by_genre.
   If they chose a filming situation, use list_videos_by_filming_situation.
   Never invent a URL.
+scopesRequired:
+  - ${SCENARIO_3_KEYCLOAK_SCOPE_READ_VIDEO_ENTRIES_RANDOM}
 statement: |
   SELECT
     id,

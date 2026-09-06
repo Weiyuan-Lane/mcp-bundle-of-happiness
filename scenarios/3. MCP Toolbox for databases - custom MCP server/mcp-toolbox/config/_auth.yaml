@@ -1,0 +1,6 @@
+kind: authService
+name: keycloak
+type: generic
+mcpEnabled: true
+authorizationServer: ${SCENARIO_3_KEYCLOAK_ISSUER}
+audience: ${SCENARIO_3_KEYCLOAK_CLIENT_MCP_TOOLBOX_ID}

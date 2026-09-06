@@ -14,6 +14,8 @@ description: |
     are returned.
   Optional gender, age_range, and dance_experience_year narrow further.
   Returns at most 20 rows. Pass offset 20, 40, … if the user asks for more.
+scopesRequired:
+  - ${SCENARIO_3_KEYCLOAK_SCOPE_READ_DANCERS}
 parameters:
   - name: genre_id
     type: string

@@ -60,6 +60,27 @@ services:
     depends_on:
       - demo-keycloak
 
+  # MCP Toolbox for databases
+  demo-mcp-toolbox:
+    container_name: demo-mcp-toolbox
+    platform: linux/amd64
+    build:
+      context: scenarios/3. MCP Toolbox for databases - custom MCP server/mcp-toolbox
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      TOOLBOX_URL: http://127.0.0.1:${SCENARIO_3_MCP_TOOLBOX_PORT}/mcp
+    working_dir: /app
+    volumes:
+      - ./scenarios/3. MCP Toolbox for databases - custom MCP server/mcp-toolbox/config:/app/config
+    ports:
+      - "127.0.0.1:${SCENARIO_3_MCP_TOOLBOX_PORT}:${SCENARIO_3_MCP_TOOLBOX_PORT}"
+      - "127.0.0.1:${SCENARIO_3_MCP_TOOLBOX_UI_PORT}:${SCENARIO_3_MCP_TOOLBOX_UI_PORT}"
+    depends_on:
+      demo-keycloak:
+        condition: service_healthy
+
   #############################################################################
   # Other demo servers                                                        #
   #############################################################################
@@ -87,6 +108,7 @@ services:
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_HTTP_PORT: ${KEYCLOAK_PORT}
       KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: http://keycloak.localhost:${KEYCLOAK_PORT}
       KC_HOSTNAME_STRICT: "false"
       KC_HEALTH_ENABLED: "true"
     volumes:
@@ -94,22 +116,20 @@ services:
       - ./keycloak/import:/opt/keycloak/data/import:ro
     ports:
       - "127.0.0.1:${KEYCLOAK_PORT}:${KEYCLOAK_PORT}"
-
-  # MCP Toolbox for databases
-  demo-mcp-toolbox:
-    container_name: demo-mcp-toolbox
-    platform: linux/amd64
-    build:
-      context: scenarios/3. MCP Toolbox for databases - custom MCP server/mcp-toolbox
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    working_dir: /app
-    volumes:
-      - ./scenarios/3. MCP Toolbox for databases - custom MCP server/mcp-toolbox/config:/app/config
-    ports:
-      - "127.0.0.1:${SCENARIO_3_MCP_TOOLBOX_PORT}:${SCENARIO_3_MCP_TOOLBOX_PORT}"
-      - "127.0.0.1:${SCENARIO_3_MCP_TOOLBOX_UI_PORT}:${SCENARIO_3_MCP_TOOLBOX_UI_PORT}"
+    networks:
+      default:
+        aliases:
+          - keycloak.localhost
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bash -c 'exec 3<>/dev/tcp/127.0.0.1/${KEYCLOAK_PORT} && printf \"GET /realms/mcp-3lo/.well-known/openid-configuration HTTP/1.1\\r\\nHost: 127.0.0.1\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && timeout 5 cat <&3 | grep -q authorization_endpoint'",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 40s
 
   # Database for MCP Toolbox
   demo-mcp-toolbox-database:

@@ -1,0 +1,478 @@
+{
+  "id": "mcp-3lo",
+  "realm": "mcp-3lo",
+  "displayName": "MCP 3-legged OAuth",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "loginWithEmailAllowed": false,
+  "duplicateEmailsAllowed": false,
+  "accessTokenLifespan": 14400,
+  "ssoSessionIdleTimeout": 1800,
+  "roles": {
+    "client": {
+      "mcp-toolbox": [
+        {
+          "name": "toolbox:read:genres",
+          "description": "Read the genres table",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:write:genres",
+          "description": "Write the genres table",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:read:filming_situations",
+          "description": "Read the filming_situations table",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:write:filming_situations",
+          "description": "Write the filming_situations table",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:read:camera_positions",
+          "description": "Read the camera_positions table",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:write:camera_positions",
+          "description": "Write the camera_positions table",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:read:music_tracks",
+          "description": "Read the music_tracks table",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:write:music_tracks",
+          "description": "Write the music_tracks table",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:read:choreographies",
+          "description": "Read the choreographies table",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:write:choreographies",
+          "description": "Write the choreographies table",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:read:video_entries",
+          "description": "Read the video_entries table (list / filter clips)",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:read:video_entries:random",
+          "description": "Read one random row from video_entries",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:write:video_entries",
+          "description": "Write the video_entries table",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:read:dancers",
+          "description": "Read the dancers table",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "toolbox:write:dancers",
+          "description": "Write the dancers table",
+          "composite": false,
+          "clientRole": true
+        }
+      ]
+    }
+  },
+  "clients": [
+    {
+      "clientId": "adk-3lo",
+      "name": "ADK agent (3-legged OAuth)",
+      "description": "Authorization-code caller for the dance trainer agent",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "adk-3lo-secret",
+      "clientAuthenticatorType": "client-secret",
+      "serviceAccountsEnabled": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "authorizationServicesEnabled": false,
+      "consentRequired": false,
+      "frontchannelLogout": false,
+      "rootUrl": "http://localhost:8080",
+      "baseUrl": "http://localhost:8080",
+      "redirectUris": [
+        "http://localhost:8080/*",
+        "http://127.0.0.1:8080/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8080",
+        "http://127.0.0.1:8080"
+      ],
+      "fullScopeAllowed": false,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "basic",
+        "toolbox:read:genres",
+        "toolbox:write:genres",
+        "toolbox:read:filming_situations",
+        "toolbox:write:filming_situations",
+        "toolbox:read:camera_positions",
+        "toolbox:write:camera_positions",
+        "toolbox:read:music_tracks",
+        "toolbox:write:music_tracks",
+        "toolbox:read:choreographies",
+        "toolbox:write:choreographies",
+        "toolbox:read:video_entries",
+        "toolbox:read:video_entries:random",
+        "toolbox:write:video_entries",
+        "toolbox:read:dancers",
+        "toolbox:write:dancers"
+      ],
+      "optionalClientScopes": [],
+      "protocolMappers": [
+        {
+          "name": "aud-mcp-toolbox",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "mcp-toolbox",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "mcp-toolbox",
+      "name": "MCP Toolbox",
+      "description": "Resource server / audience for MCP Toolbox",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "serviceAccountsEnabled": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "authorizationServicesEnabled": false,
+      "frontchannelLogout": false,
+      "redirectUris": [],
+      "webOrigins": [],
+      "fullScopeAllowed": false
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "toolbox:read:genres",
+      "description": "Read the genres table",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:write:genres",
+      "description": "Write the genres table",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:read:filming_situations",
+      "description": "Read the filming_situations table",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:write:filming_situations",
+      "description": "Write the filming_situations table",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:read:camera_positions",
+      "description": "Read the camera_positions table",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:write:camera_positions",
+      "description": "Write the camera_positions table",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:read:music_tracks",
+      "description": "Read the music_tracks table",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:write:music_tracks",
+      "description": "Write the music_tracks table",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:read:choreographies",
+      "description": "Read the choreographies table",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:write:choreographies",
+      "description": "Write the choreographies table",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:read:video_entries",
+      "description": "Read the video_entries table (list / filter clips)",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:read:video_entries:random",
+      "description": "Read one random row from video_entries",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:write:video_entries",
+      "description": "Write the video_entries table",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:read:dancers",
+      "description": "Read the dancers table",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
+      "name": "toolbox:write:dancers",
+      "description": "Write the dancers table",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      }
+    }
+  ],
+  "clientScopeMappings": {
+    "mcp-toolbox": [
+      {
+        "clientScope": "toolbox:read:genres",
+        "roles": ["toolbox:read:genres"]
+      },
+      {
+        "clientScope": "toolbox:write:genres",
+        "roles": ["toolbox:write:genres"]
+      },
+      {
+        "clientScope": "toolbox:read:filming_situations",
+        "roles": ["toolbox:read:filming_situations"]
+      },
+      {
+        "clientScope": "toolbox:write:filming_situations",
+        "roles": ["toolbox:write:filming_situations"]
+      },
+      {
+        "clientScope": "toolbox:read:camera_positions",
+        "roles": ["toolbox:read:camera_positions"]
+      },
+      {
+        "clientScope": "toolbox:write:camera_positions",
+        "roles": ["toolbox:write:camera_positions"]
+      },
+      {
+        "clientScope": "toolbox:read:music_tracks",
+        "roles": ["toolbox:read:music_tracks"]
+      },
+      {
+        "clientScope": "toolbox:write:music_tracks",
+        "roles": ["toolbox:write:music_tracks"]
+      },
+      {
+        "clientScope": "toolbox:read:choreographies",
+        "roles": ["toolbox:read:choreographies"]
+      },
+      {
+        "clientScope": "toolbox:write:choreographies",
+        "roles": ["toolbox:write:choreographies"]
+      },
+      {
+        "clientScope": "toolbox:read:video_entries",
+        "roles": ["toolbox:read:video_entries"]
+      },
+      {
+        "clientScope": "toolbox:read:video_entries:random",
+        "roles": ["toolbox:read:video_entries:random"]
+      },
+      {
+        "clientScope": "toolbox:write:video_entries",
+        "roles": ["toolbox:write:video_entries"]
+      },
+      {
+        "clientScope": "toolbox:read:dancers",
+        "roles": ["toolbox:read:dancers"]
+      },
+      {
+        "clientScope": "toolbox:write:dancers",
+        "roles": ["toolbox:write:dancers"]
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Archer",
+      "lastName": "Admin",
+      "email": "admin@localhost",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin",
+          "temporary": false
+        }
+      ],
+      "requiredActions": [],
+      "clientRoles": {
+        "mcp-toolbox": [
+          "toolbox:read:genres",
+          "toolbox:write:genres",
+          "toolbox:read:filming_situations",
+          "toolbox:write:filming_situations",
+          "toolbox:read:camera_positions",
+          "toolbox:write:camera_positions",
+          "toolbox:read:music_tracks",
+          "toolbox:write:music_tracks",
+          "toolbox:read:choreographies",
+          "toolbox:write:choreographies",
+          "toolbox:read:video_entries",
+          "toolbox:read:video_entries:random",
+          "toolbox:write:video_entries",
+          "toolbox:read:dancers",
+          "toolbox:write:dancers"
+        ]
+      }
+    },
+    {
+      "username": "user",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Shirou",
+      "lastName": "Normal",
+      "email": "user@localhost",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "user",
+          "temporary": false
+        }
+      ],
+      "requiredActions": [],
+      "clientRoles": {
+        "mcp-toolbox": [
+          "toolbox:read:genres",
+          "toolbox:read:filming_situations",
+          "toolbox:read:camera_positions",
+          "toolbox:read:music_tracks",
+          "toolbox:read:choreographies",
+          "toolbox:read:video_entries",
+          "toolbox:read:video_entries:random"
+        ]
+      }
+    },
+    {
+      "username": "trial",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Gilgamesh",
+      "lastName": "Trial",
+      "email": "trial@localhost",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "trial",
+          "temporary": false
+        }
+      ],
+      "requiredActions": [],
+      "clientRoles": {
+        "mcp-toolbox": [
+          "toolbox:read:video_entries:random"
+        ]
+      }
+    }
+  ]
+}
