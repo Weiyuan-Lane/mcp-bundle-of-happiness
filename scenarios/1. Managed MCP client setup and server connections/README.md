@@ -6,7 +6,7 @@
 
 This scenario connects ADK agents to **managed MCP servers** from Google Maps and Supabase. Those servers already exist on the public internet. The agents are the **clients**: they authenticate over Streamable HTTP and call the tools those services expose.
 
-The **DevOps agent** administrates the database, such as for applying `supabase/migrations/` through Supabase MCP. The **travel agent** uses Maps for places, weather, and routes, and can query `hotels` / `airports` in Supabase.
+The **DevOps agent** administrates the database, such as for applying `supabase/migrations/` through Supabase MCP. The **travel agent** uses Maps for places, weather, and routes, and can query `hotels` / `airports` in Supabase. The **travel agent** is also configured with custom skills written for this same scenario.
 
 ## What runs on `make docker-compose-up`
 
