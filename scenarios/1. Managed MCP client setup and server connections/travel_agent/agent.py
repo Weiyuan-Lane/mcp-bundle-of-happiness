@@ -1,8 +1,11 @@
 import os
+import pathlib
 from .instructions import base_instructions, supabase_replacement_instructions
 from google.adk import Agent
+from google.adk.skills import load_skills_from_dir
 from google.adk.tools.mcp_tool import McpToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
+from google.adk.tools.skill_toolset import SkillToolset
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -29,7 +32,7 @@ maps_mcp_toolset: McpToolset = McpToolset(
     )
 )
 
-tools: list[McpToolset] = [maps_mcp_toolset]
+tools: list[McpToolset | SkillToolset] = [maps_mcp_toolset]
 
 # Optional - Query Supabase database for hotel and airport stats
 if SUPABASE_TOKEN:
@@ -44,7 +47,12 @@ if SUPABASE_TOKEN:
             'execute_sql',
         ],
     )
+    query_hotels_airports_skill_toolset: SkillToolset = SkillToolset(
+        skills = load_skills_from_dir(pathlib.Path(__file__).parent / 'skills'),
+    )
+
     tools.append(supabase_mcp_toolset)
+    tools.append(query_hotels_airports_skill_toolset)
     SYSTEM_INSTRUCTION = supabase_replacement_instructions
 
 root_agent: Agent = Agent(
